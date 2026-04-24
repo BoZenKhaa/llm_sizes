@@ -1,0 +1,1 @@
+model_name,organization,announcement_date,total_params,active_params,param_disclosure,param_source_note,architecture_type,context_window,open_weights,frontier_at_release,frontier_open_at_release,cap_text,cap_vision,cap_audio,cap_video,cap_code_specialized,cap_reasoning,cap_tool_use,release_url,supporting_url

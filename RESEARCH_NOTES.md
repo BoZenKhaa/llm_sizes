@@ -1233,3 +1233,876 @@ Verifier FAIL/PARTIAL triage edits applied:
 
 #### Row 136 — Reka Flash 3
 - Instruction assumed cap_reasoning=false but CSV already had cap_reasoning=true with param_source_note already calling it a reasoning model. No action needed.
+
+## OPT-175B
+- Source: https://ai.meta.com/blog/democratizing-access-to-large-scale-language-models-with-opt-175b/
+- Supporting: https://arxiv.org/abs/2205.01068 (supports context window 2048 / training token count)
+- Key facts: total=175B, active=175B (dense), context=2048, released=2022-05-03
+- License: noncommercial research license.
+- Notes: First fully-open 175B model. Marked frontier_open_at_release=true — at May 2022 it was *the* open-weights 100B+ frontier (BLOOM-176B only arrived Jul 2022). Not overall frontier (PaLM 540B was Google's April 2022 internal peak, Chinchilla dominated frontier math in March 2022). frontier_at_release=false. cap_tool_use=false (no function calling era).
+
+## Galactica 120B
+- Source: https://arxiv.org/abs/2211.09085 (Galactica tech report — primary)
+- Supporting: https://huggingface.co/facebook/galactica-120b (confirms CC-BY-NC-4.0, 120B, HF availability)
+- Key facts: total=120B, active=120B (dense), context=2048, released=2022-11-15
+- License: CC-BY-NC-4.0 (open weights, noncommercial).
+- Notes: Demo taken down after 3 days due to hallucinations but weights remained available on HF. Architecture is dense decoder-only transformer. Not frontier at release (GPT-3.5 era, and OPT-175B/BLOOM-176B were larger open-weight). Science-specialist framing; not a code model. frontier_open_at_release=false (BLOOM-176B Jul 2022 already held the open-weight crown, Galactica at 120B was smaller).
+
+## LLaMA 7B / 13B / 33B / 65B
+- Source: https://ai.meta.com/blog/large-language-model-llama-meta-ai/ (Meta announcement)
+- Supporting: https://arxiv.org/abs/2302.13971 (LLaMA paper — supports context window 2048 and per-size training-token counts)
+- Key facts: released=2023-02-24; context=2048 across all sizes
+- Training tokens: 7B and 13B on 1T tokens; 33B and 65B on 1.4T tokens.
+- License: noncommercial research license (at release — later leaked and broadly reused).
+- Notes: All dense transformers. LLaMA-65B was the open-weight frontier at Feb 2023 (beating OPT-175B per-parameter on most benchmarks per Meta claims; competitive with Chinchilla 70B and PaLM 540B). Marked frontier_open_at_release=true on 65B only; the smaller sizes are also open but not *the* open frontier at release. frontier_at_release=false across all (GPT-4 / PaLM era). No tool use, no vision at LLaMA 1 era. Parameter columns use rounded labelled sizes (7B, 13B, 33B, 65B) per lab branding; paper exact counts are 6.7B, 13B, 32.5B, 65.2B — retained rounded figures since the release branding is canonical.
+
+## Llama 2 7B / 13B / 70B
+- Source: https://ai.meta.com/blog/llama-2/ (Meta/Microsoft announcement)
+- Supporting: https://arxiv.org/abs/2307.09288 (Llama 2 paper — supports training-token count 2T, context window 4096)
+- Key facts: released=2023-07-18; context=4096; training=2T tokens
+- License: Llama 2 Community License (commercial use allowed, subject to DAU threshold).
+- Notes: Llama 2 70B used grouped-query attention (GQA) — first Meta model to do so. Marked frontier_open_at_release=true on the 70B row (surpassing LLaMA-65B and matching/beating Falcon-40B; Falcon-180B would arrive Sep 2023). 7B and 13B not individually frontier-open. No tool use, no vision. cap_code_specialized=false (general purpose).
+
+## Code Llama 7B / 13B / 34B
+- Source: https://ai.meta.com/blog/code-llama-large-language-model-coding/ (Meta announcement)
+- Supporting: https://arxiv.org/abs/2308.12950 (Code Llama paper — supports 16K training context, up-to-100K inference context, 500B-token training)
+- Key facts: released=2023-08-24; context=16384 trained (stable to 100K); training=500B tokens of code
+- License: Llama 2 Community License (commercial + research).
+- Notes: Dense transformers derived from Llama 2 (except 34B which has no Llama 2 base — 34B Llama 2 was never released). cap_code_specialized=true for all. Each size has base / Python / Instruct variants collapsed to single row per size per schema convention. frontier_open_at_release=false (not broadly the open frontier; code-specific niche but not overall).
+
+## Code Llama 70B
+- Source: https://ai.meta.com/blog/code-llama-large-language-model-coding/ (updated Jan 29 2024)
+- Supporting: https://arxiv.org/abs/2308.12950
+- Key facts: released=2024-01-29; total=70B; context=16384 (stable to 100K); training=1T tokens of code
+- License: same Llama 2 Community License.
+- Notes: Separate release event from Aug 2023 batch. Own row per scope rules. Base / Python / Instruct variants.
+
+## Llama 3 8B / 70B
+- Source: https://ai.meta.com/blog/meta-llama-3/ (Meta announcement)
+- Supporting: https://arxiv.org/abs/2407.21783 (Llama 3 herd paper — supports 15T+ training tokens, GQA, 8192 context at initial release)
+- Key facts: released=2024-04-18; context=8192 at initial release; training>=15T tokens
+- License: Llama 3 Community License (commercial with DAU threshold).
+- Notes: Dense transformers, GQA across both sizes. New 128K-vocab tokenizer. Llama 3 70B was the best open-weights model at April 2024 release (surpassing Mixtral 8x22B on most benchmarks). frontier_open_at_release=true on 70B; 8B false. Not overall frontier (GPT-4 Turbo, Claude 3 Opus era).
+
+## Llama 3.1 8B / 70B / 405B
+- Source: https://ai.meta.com/blog/meta-llama-3-1/
+- Supporting: https://arxiv.org/abs/2407.21783 (Llama 3 herd paper — supports 405B param count, 128K context, 16K+ H100 training details)
+- Key facts: released=2024-07-23; context=128000; training=15T+ tokens; tool use officially supported
+- License: Llama 3.1 Community License (permits output use to improve other models).
+- Notes: Llama 3.1 405B is the key frontier event — first open-weights model to genuinely contest the overall frontier (competitive with GPT-4o and Claude 3.5 Sonnet). Marked frontier_at_release=true AND frontier_open_at_release=true on 405B. 70B frontier_open=false (405B is the open peak at that moment). 8B no frontier flags. cap_tool_use=true across all three sizes per Meta's "state-of-the-art tool use" announcement and dedicated tool-use API support.
+
+## Llama 3.2 1B / 3B / 11B Vision / 90B Vision
+- Source: https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/
+- Supporting: per-model HuggingFace cards (Llama-3.2-1B, -3B, -11B-Vision, -90B-Vision) — support 128K context window on vision models (not explicit in blog)
+- Key facts: released=2024-09-25; all models context=128000; 1B and 3B text-only, 11B and 90B multimodal
+- Notes: Llama 3.2 11B Vision and 90B Vision are drop-in replacements for 3.1 8B and 70B text models with added vision encoders. Tool calling supported on all four per blog ("multilingual text generation and tool calling abilities"). 90B Vision was the frontier open-weights vision model at Sep 2024 (competitive with Claude 3 Haiku, GPT-4o-mini per Meta). Marked frontier_open_at_release=true on 90B Vision; others false. No frontier_at_release (closed multimodal models from OpenAI/Anthropic/Google were ahead overall).
+
+## Llama 3.3 70B
+- Source: https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct (primary — the canonical model card from Meta; the Meta blog announcement was via tweet/HF rather than a dedicated blog post)
+- Supporting: https://ai.meta.com/blog/future-of-ai-built-with-llama/ (Meta blog post on Llama family including 3.3 efficiency gains)
+- Key facts: released=2024-12-06; total=70B; context=128000; training=~15T tokens
+- License: Llama 3.3 Community License.
+- Notes: Text-only efficiency-focused update. Meta claimed 405B-level performance at a fraction of the cost. Marked frontier_open_at_release=true — at Dec 6 2024 it was arguably the best 70B-scale open model (briefly before DeepSeek-V3 on Dec 26 2024 redefined the open frontier). Not overall frontier. cap_tool_use=true (Llama 3.1+ family capability). cap_vision=false (text-only per announcement; the 3.2 vision line is separate).
+
+## Llama 4 Scout / Maverick / Behemoth (preview)
+- Source: https://ai.meta.com/blog/llama-4-multimodal-intelligence/ (Meta announcement)
+- Supporting: HuggingFace cards for Scout (Llama-4-Scout-17B-16E) and Maverick (Llama-4-Maverick-17B-128E). Behemoth has no HF release — blank supporting_url.
+- Key facts: announced=2025-04-05
+  - Scout: 17B active / 109B total, 16 experts, 10M context
+  - Maverick: 17B active / 400B total, 128 routed + 1 shared expert, 1M context
+  - Behemoth: 288B active / ~2T total, 16 experts — NOT PUBLICLY RELEASED (still training / paused as of April 2026)
+- License: Llama 4 Community License (released models only).
+- Notes: First Meta MoE family. Native multimodality via early fusion (text + vision). Marked frontier_at_release=true on Scout and Maverick per Meta's stated competitive positioning (they were at-or-near the open frontier at April 2025 and broadly competitive with top closed models in some tasks). frontier_open_at_release=true on both. Behemoth row has open_weights=false because weights were never released and context_window is blank because Meta has not stated a context window for Behemoth in the announcement (only architectural sketch). Tool use: default true for Llama 4 per the ecosystem (vLLM/llama.cpp support, tool calling carried forward from 3.1 family). cap_vision=true for all three; cap_audio/cap_video false (Meta states image + video frame training but no primary inference over video at release).
+
+## DeepSeek LLM 7B
+- Source: https://github.com/deepseek-ai/DeepSeek-LLM (official GitHub repo)
+- Supporting: https://huggingface.co/deepseek-ai/deepseek-llm-7b-base (HF model card; confirms 7B param count and 2T token training)
+- Key facts: total=7B, active=7B (dense), context=4096, released=2023-11-29, trained on 2T tokens English+Chinese
+- Architecture: dense transformer, Multi-Head Attention (MHA), LLaMA-style architecture.
+- License: DeepSeek License (commercial use allowed).
+- Notes: First DeepSeek LLM release. Base + Chat variants — one row for the 7B headline. frontier_at_release=false (Llama 2 70B, GPT-4 dominated); frontier_open_at_release=false (Llama 2 70B, Falcon-180B were larger open models). Not code-specialized, not reasoning.
+
+## DeepSeek LLM 67B
+- Source: https://github.com/deepseek-ai/DeepSeek-LLM
+- Supporting: https://huggingface.co/deepseek-ai/deepseek-llm-67b-base (HF card confirms 67B params, 2T tokens, GQA architecture)
+- Key facts: total=67B, active=67B (dense), context=4096, released=2023-11-29, trained 2T tokens
+- Architecture: dense, Grouped-Query Attention (GQA).
+- License: DeepSeek License.
+- Notes: Outperformed Llama 2 70B on reasoning/coding/math/Chinese per README. At Nov 2023, Falcon-180B (Sep 2023) was larger, so frontier_open_at_release=false — but it was the strongest ~70B-class open-weights model at release. Not marking frontier_open=true because Falcon-180B held the headline size crown. Conservative false on both frontier flags.
+
+## DeepSeek-Coder 33B (family: 1.3B/5.7B/6.7B/33B)
+- Source: https://github.com/deepseek-ai/DeepSeek-Coder
+- Supporting: https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct (HF model card — confirms 33B params, 16K context, 2T tokens 87% code)
+- Key facts: total=33B, active=33B (dense), context=16384 (16K), released=2023-11-02, family sizes 1.3B/5.7B/6.7B/33B
+- Architecture: dense transformer, trained on 87% code + 13% natural language (English+Chinese).
+- License: DeepSeek License.
+- Notes: First DeepSeek Coder release, flagship row = 33B. cap_code_specialized=true (trained primarily for code). 16K context (extended from 4K pre-training via further pre-training with 200B additional tokens). Not frontier overall; CodeLlama 34B was the open-weights code frontier at that moment and arguably DeepSeek-Coder-33B overtook it on HumanEval — marking frontier_open_at_release=false conservatively since coding-only specialization doesn't map cleanly to the "overall open frontier" plot but this is debatable. Family note in param_source_note captures 1.3/5.7/6.7/33B variants.
+
+## DeepSeek-MoE 16B
+- Source: https://arxiv.org/abs/2401.06066 (DeepSeekMoE paper — architecture pivot)
+- Supporting: https://huggingface.co/deepseek-ai/deepseek-moe-16b-base (HF model card confirms 16B MoE)
+- Key facts: total=16.4B, active=2.8B, context=4096, announced=2024-01-11 (paper submission; Wikipedia says model release Jan 9 but paper date is more citable)
+- Architecture: MoE with fine-grained expert specialization + shared expert isolation — DeepSeek's first MoE and the prototype for V2/V3 sparse architecture.
+- License: DeepSeek License.
+- Notes: Comparable performance to Llama2 7B at ~40% compute. Announcement date = arxiv paper submission (2024-01-11) since the paper is cited by every source. Not a frontier model; significance is architectural pivot. cap_code_specialized=false.
+
+## DeepSeek-V2
+- Source: https://arxiv.org/abs/2405.04434 (official technical report)
+- Supporting: https://github.com/deepseek-ai/DeepSeek-V2 (GitHub repo confirms release date May 6 2024, 128K context, 236B/21B)
+- Key facts: total=236B, active=21B, context=128000, released=2024-05-07 (paper submission; GitHub says model release May 6)
+- Architecture: MoE with Multi-head Latent Attention (MLA) + DeepSeekMoE sparse expert routing.
+- License: DeepSeek License (commercial use allowed).
+- Notes: First 200B+ MoE from DeepSeek. 42.5% lower training cost vs DeepSeek 67B, 93.3% KV cache reduction. In May 2024, competed with Mixtral 8x22B (141B/39B) as largest open MoE — DeepSeek-V2 at 236B is larger, making this frontier_open_at_release=true. Not overall frontier (GPT-4, Claude 3 Opus ahead). cap_tool_use=false (V2 base — function calling added in V2.5).
+
+## DeepSeek-Coder-V2
+- Source: https://arxiv.org/abs/2406.11931 (official paper)
+- Supporting: https://github.com/deepseek-ai/DeepSeek-Coder-V2 (GitHub confirms 16B/236B variants, 2.4B/21B active, 128K context)
+- Key facts: total=236B, active=21B, context=128000, announced=2024-06-17
+- Architecture: MoE based on DeepSeek-V2 architecture, further pre-trained with +6T code tokens. 338 programming languages.
+- License: DeepSeek License.
+- Notes: Flagship 236B variant. cap_code_specialized=true. Claimed comparable-to-GPT-4-Turbo on code benchmarks. Lite variant (16B/2.4B) also released — noted in param_source_note. frontier_open_at_release=false because the general-purpose V2 was the headline open-frontier row for this period.
+
+## DeepSeek-V2.5
+- Source: https://huggingface.co/deepseek-ai/DeepSeek-V2.5 (official HF model card — release notes and function calling example)
+- Supporting: https://github.com/deepseek-ai/DeepSeek-V2 (GitHub for 236B/21B/128K architecture confirmation — same as V2)
+- Key facts: total=236B, active=21B, context=128000, released=2024-09-05 (merge of V2-0628 + Coder-V2-0724)
+- Architecture: MoE (same as V2), chat + code merged.
+- License: DeepSeek License (commercial use allowed, open weights MIT-like).
+- Notes: Merged general+code model → cap_code_specialized=false per scope doc. Added function calling per HF model card ("Function calling allows the model to call external tools to enhance its capabilities") → cap_tool_use=true. Not frontier_at_release (Claude 3.5 Sonnet, GPT-4o ahead). frontier_open_at_release=true — Sept 2024, V2.5 was the strongest general+code open model at 236B MoE. Context: HF card shows max_model_len=8192 in vLLM example but the architecture and docs show 128K — treating 128K as the release-time context since it's inherited from V2.
+
+## DeepSeek-V3
+- Source: https://arxiv.org/abs/2412.19437 (DeepSeek-V3 technical report — 671B/37B/14.8T tokens/FP8/MLA)
+- Supporting: https://huggingface.co/deepseek-ai/DeepSeek-V3 (model card confirms 671B/37B/128K context, FP8 weights, MLA+MoE)
+- Key facts: total=671B, active=37B, context=128000, released=2024-12-26, 14.8T training tokens, FP8 mixed precision
+- Architecture: MoE with MLA + auxiliary-loss-free load balancing + multi-token prediction.
+- License: DeepSeek License (open weights — MIT-compatible terms).
+- Notes: Major frontier event — 671B open-weights MoE that genuinely contested overall frontier with GPT-4o / Claude 3.5 Sonnet-1022. frontier_at_release=true and frontier_open_at_release=true. cap_tool_use=true — scope doc asserts V3 officially supports function calling; model card doesn't explicitly demo but DeepSeek API supports function calling from V3 onward. cap_reasoning=false (V3 is not test-time-reasoning; R1 is the reasoning branch).
+
+## DeepSeek-R1
+- Source: https://huggingface.co/deepseek-ai/DeepSeek-R1 (official HF model card — confirms 671B/37B/128K, reasoning model with <think> tags)
+- Supporting: https://arxiv.org/abs/2501.12948 (DeepSeek-R1 paper — pure RL reasoning training)
+- Key facts: total=671B, active=37B, context=128000, released=2025-01-20
+- Architecture: MoE (same 671B/37B as V3), post-trained via RL for reasoning.
+- License: MIT (weights) per standard DeepSeek open release.
+- Notes: FIRST open-weights reasoning model to reach o1-class performance. cap_reasoning=true (test-time reasoning with <think> tags — explicit reasoning family). frontier_at_release=true (genuinely contested o1 on math/code/reasoning); frontier_open_at_release=true (no other open reasoning model matched this at Jan 2025). Tool use: R1 base is not optimized for tool calling (reasoning-first design) — setting cap_tool_use=false, matching o1's initial non-tool-use posture. Distill variants skipped per scope.
+
+## DeepSeek-V3.1
+- Source: https://huggingface.co/deepseek-ai/DeepSeek-V3.1 (official HF model card — 671B/37B/128K, hybrid thinking+non-thinking, tool calling)
+- Supporting: https://www.analyticsvidhya.com/blog/2025/08/deepseek-v3-1-quiet-release-big-statement/ (confirms Aug 21 2025 release date, 685B total with MTP, 128K context, thinking mode)
+- Key facts: total=671B (main) or 685B including MTP module, active=37B, context=128000, released=2025-08-21
+- Architecture: MoE hybrid reasoning model, FP8 UE8M0, extended context training phases.
+- License: MIT.
+- Notes: First DeepSeek hybrid model (thinking + non-thinking via chat template toggle). Matches R1-0528 quality on reasoning while allowing fast non-thinking mode. cap_reasoning=true (explicit thinking mode), cap_tool_use=true (improved tool calling). frontier_at_release=false (GPT-5 / Gemini 2.5 generation ahead by Aug 2025); frontier_open_at_release=true — at release, V3.1 was the strongest open hybrid model. Using 671B as total_params (main model weights — MTP module is auxiliary training scaffold, per DeepSeek convention in V3 report). HF card shows param count "685B" if counting MTP — noting the 671/685B decomposition in param_source_note.
+
+## DeepSeek-V3.2-Exp
+- Source: https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Exp (official HF card — references config_671B_v3.2.json, DSA sparse attention, MLA, 256 experts)
+- Supporting: (none — HF card covers all facts for this experimental release)
+- Key facts: total=671B, active=37B (config inherited from V3.1), context=128000, released=2025-09-29
+- Architecture: MoE + DeepSeek Sparse Attention (DSA) + MLA. Experimental release testing sparse attention.
+- License: MIT.
+- Notes: Experimental release — incremental architecture research. Not a frontier event by itself. cap_reasoning=true (thinking mode inherited from V3.1). cap_tool_use=true. frontier_open_at_release=false (incremental over V3.1).
+
+## DeepSeek-V3.2
+- Source: https://huggingface.co/deepseek-ai/DeepSeek-V3.2 (official HF card — Dec 1 2025 release date timestamp, thinking + tool use, 685B)
+- Supporting: https://arxiv.org/abs/2512.02556 (official DeepSeek-V3.2 paper "Pushing the Frontier of Open Large Language Models" — submitted Dec 2 2025, describes DSA, scalable RL post-training, agentic task synthesis pipeline)
+- Key facts: total=671B (main) / 685B (with MTP), active=37B, context=128000, released=2025-12-01
+- Architecture: MoE with DSA, reasoning-first, "thinking with tools" capability.
+- License: MIT.
+- Notes: Official successor to V3.2-Exp. "Thinking with tools" integrates reasoning directly into tool use. cap_reasoning=true, cap_tool_use=true. V3.2-Speciale is a reasoning-only API-only variant — NOT including Speciale as a separate row (API-only, no open weights). frontier_at_release=false (GPT-5-class models contemporaneous); frontier_open_at_release=true (strongest open reasoning+tool-use model at Dec 2025). Context window inherited from V3 family.
+
+## Qwen-7B
+- Source: https://huggingface.co/Qwen/Qwen-7B
+- Supporting: https://github.com/QwenLM/Qwen (release timeline), arXiv 2309.16609 (Qwen tech report)
+- Key facts: total=7B, active=7B (dense), context=8192 (originally 2048, extended to 8192 in Sept 2023 retraining), released=2023-08-03 first drop; blog re-announced/retrained Sep 25 2023 at 8k context.
+- License: Tongyi Qianwen License (commercial-use allowed with free application form).
+- Architecture: dense transformer with RoPE, SwiGLU, RMSNorm.
+- Notes: Using 2023-08-03 (original ModelScope/HF drop) per Wikipedia and GitHub README. Context at release was 2k, but by time of tech report (Sept 28) extended to 8k with NTK/LogN; taking 8192 as release-era value since that's what the primary Qwen-7B HF card documents. Trained on 2.4T tokens. frontier_at_release=false; frontier_open_at_release=false (Llama 2 70B dominated open in Aug 2023).
+
+## Qwen-14B
+- Source: https://huggingface.co/Qwen/Qwen-14B
+- Supporting: https://github.com/QwenLM/Qwen (dated release timeline)
+- Key facts: total=14B, active=14B, context=2048 base / extendable to 8k via NTK, released=2023-09-25
+- License: Tongyi Qianwen License.
+- Architecture: dense transformer (RoPE, SwiGLU, RMSNorm).
+- Notes: HF card shows 2048 native context; blog claims 8k via NTK+LogN. Using 2048 as release-time value per release-time rule. Trained on 3T+ tokens. frontier_at_release=false, frontier_open_at_release=false.
+
+## Qwen-72B
+- Source: https://huggingface.co/Qwen/Qwen-72B
+- Supporting: https://github.com/QwenLM/Qwen
+- Key facts: total=72B, active=72B (dense), context=32768 (32K), released=2023-11-30
+- License: Tongyi Qianwen License.
+- Architecture: dense transformer (RoPE, SwiGLU, RMSNorm).
+- Notes: Trained on 3T+ tokens. 32K native context. Biggest Qwen 1 release. At release, Falcon-180B (180B) was still larger open-weight but Qwen-72B was closer to Llama-2-70B class. Not frontier-open (Falcon-180B larger, Llama-2-70B comparable). frontier_at_release=false, frontier_open_at_release=false (Falcon 180B still the open-weight-by-size leader Nov 2023).
+
+## Qwen1.5 72B
+- Source: https://qwenlm.github.io/blog/qwen1.5/
+- Supporting: https://huggingface.co/Qwen/Qwen1.5-72B (for params/context specs)
+- Key facts: total=72B, active=72B, context=32768, released=2024-02-04
+- License: Tongyi Qianwen License.
+- Architecture: dense transformer.
+- Notes: Qwen1.5 was a sweeping refresh releasing 0.5B/1.8B/4B/7B/14B/32B/72B/110B simultaneously. Using 72B as the flagship row. 110B wasn't in the Feb 4 drop (came April 2024); skipping 110B per scope. Native function calling via HF tokenizer. frontier_at_release=false; frontier_open_at_release=false (Feb 2024 still Mixtral 8x7B + Llama-2-70B dominant; Qwen1.5-72B was competitive but not clearly the top open).
+
+## Qwen1.5-MoE-A2.7B
+- Source: https://qwenlm.github.io/blog/qwen-moe/
+- Supporting: https://huggingface.co/Qwen/Qwen1.5-MoE-A2.7B
+- Key facts: total=14.3B, active=2.7B, context=8192 (HF config shows 8k native; some extend to 32k), released=2024-03-28
+- License: Apache 2.0.
+- Architecture: MoE — 64 experts (60 routing + 4 shared), 4 of 60 routed activated.
+- Notes: First Qwen MoE. Matched Qwen1.5-7B quality at ~1/3 activated params. Context window 8K per HF config. Not frontier or open-frontier — a cost-efficiency pilot. frontier_at_release=false, frontier_open_at_release=false.
+
+## Qwen2-72B
+- Source: https://qwenlm.github.io/blog/qwen2/
+- Supporting: https://huggingface.co/Qwen/Qwen2-72B (architecture and total_params of 73B)
+- Key facts: total=72.7B (~73B), active=72.7B (dense), context=131072 (128K with YaRN), released=2024-06-07
+- License: Tongyi Qianwen License (72B uses proprietary license; smaller Qwen2 models use Apache 2.0).
+- Architecture: dense transformer with GQA.
+- Notes: HF model card shows 73B total; tech report confirms same. At June 2024, Llama 3 70B (April) was dominant open; Qwen2-72B was competitive peer. Borderline frontier_open_at_release — marking true since it matched or beat Llama 3 70B on key benchmarks per Qwen2 blog. Not overall frontier (GPT-4o, Claude 3.5 Sonnet dominated). Function calling supported per Qwen2 tech report.
+
+## Qwen2-57B-A14B
+- Source: https://qwenlm.github.io/blog/qwen2/
+- Supporting: https://huggingface.co/Qwen/Qwen2-57B-A14B
+- Key facts: total=57B, active=14B, context=65536 (64K), released=2024-06-07
+- License: Apache 2.0.
+- Architecture: MoE (upcycled, same approach as Qwen1.5-MoE).
+- Notes: Second Qwen MoE. frontier_open_at_release=false (Qwen2-72B and Llama 3 70B were stronger at same date). Function calling via Qwen tooling.
+
+## Qwen2-VL-72B
+- Source: https://qwenlm.github.io/blog/qwen2-vl/
+- Supporting: https://huggingface.co/Qwen/Qwen2-VL-72B (params: 73B model w/ vision encoder)
+- Key facts: total=~73B (~72B LLM + 600M ViT), active=~73B, context=32768 (not explicitly on blog; HF card shows 32K config), released=2024-08-29 (2B/7B open; 72B initially API-only)
+- License: Qwen (72B initially API-only; open-weight release September 2024 via Qwen2.5-VL path, but 72B base version Qwen2-VL-72B eventually released on HF under Qwen license).
+- Architecture: dense multimodal transformer with Naive Dynamic Resolution + M-RoPE.
+- Notes: The 2B/7B were open-weight on Aug 29; 72B was API-only at launch per blog. HF shows Qwen2-VL-72B base available — released later. Using 2024-08-29 as announcement_date per the blog. Since 72B was API-only at announcement, open_weights=false at time of announcement; flipping to true would misrepresent release-time status. cap_vision=true, cap_video=true (>20min videos), cap_tool_use=true (visual agent / mobile device control). frontier_open_at_release=false (not open at release). Flag honestly.
+
+## Qwen2.5-72B
+- Source: https://qwenlm.github.io/blog/qwen2.5/
+- Supporting: https://huggingface.co/Qwen/Qwen2.5-72B
+- Key facts: total=72.7B (~73B), active=72.7B (dense), context=131072 (128K), released=2024-09-19
+- License: Qwen (72B uses Qwen license; others Apache 2.0).
+- Architecture: dense.
+- Notes: Trained on 18T tokens. Supports tool calling. frontier_open_at_release=true — at Sept 2024 Qwen2.5-72B was arguably the strongest open general model, competing with Llama 3.1 405B on many benchmarks at a fraction of the size. frontier_at_release=false (GPT-4o, Claude 3.5 Sonnet, o1 still stronger overall).
+
+## Qwen2.5-Coder-32B
+- Source: https://qwenlm.github.io/blog/qwen2.5-coder-family/
+- Supporting: https://huggingface.co/Qwen/Qwen2.5-Coder-32B
+- Key facts: total=32.5B (~32B), active=32.5B, context=131072 (128K with YaRN; 32768 default), released=2024-11-12
+- License: Apache 2.0 (32B is Apache, 3B is Qwen Research).
+- Architecture: dense, code-specialized.
+- Notes: Claimed to match GPT-4o on coding benchmarks. cap_code_specialized=true. cap_tool_use=true (agentic coding capable). frontier_open_at_release=true on code specifically; frontier_at_release=false (not an overall frontier model). Trained on 5.5T tokens.
+
+## Qwen2.5-VL-72B
+- Source: https://qwenlm.github.io/blog/qwen2.5-vl/
+- Supporting: https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct
+- Key facts: total=~73B (~72B LLM + vision encoder), active=~73B, context=32768 (native; extendable to 64K/128K for long videos), released=2025-01-26
+- License: Qwen.
+- Architecture: dense multimodal with M-RoPE + dynamic FPS for video.
+- Notes: Open-weight at launch (unlike Qwen2-VL-72B). Computer/phone use agent capabilities; >1hr video understanding. cap_vision=true, cap_video=true, cap_tool_use=true. frontier_open_at_release=true (strongest open-weight VLM at time).
+
+## QwQ-32B-Preview
+- Source: https://huggingface.co/Qwen/QwQ-32B-Preview
+- Supporting: https://techcrunch.com/2024/11/27/alibaba-releases-an-open-challenger-to-openais-o1-reasoning-model/ (release date + reasoning positioning)
+- Key facts: total=32.5B (~32B), active=32.5B, context=32768, released=2024-11-27
+- License: Apache 2.0.
+- Architecture: dense (based on Qwen2.5-32B); reasoning-focused post-training.
+- Notes: First open-weight reasoning model approaching o1-level performance on math/code. cap_reasoning=true. cap_tool_use=false (preview does not document function calling). frontier_open_at_release=true (first public open reasoning model); frontier_at_release=false (o1-preview stronger overall).
+
+## QwQ-32B
+- Source: https://huggingface.co/Qwen/QwQ-32B
+- Supporting: https://qwenlm.github.io/blog/qwq-32b/ (not directly fetched; referenced in search)
+- Key facts: total=32.5B, active=32.5B, context=131072 (128K native with YaRN), released=2025-03-05
+- License: Apache 2.0.
+- Architecture: dense reasoning model, RL-enhanced from Qwen2.5-32B.
+- Notes: Full release vs Preview. Near-DeepSeek-R1 performance at 20x fewer parameters. cap_reasoning=true. cap_tool_use=true (HF card mentions agent integration / tool calling). frontier_open_at_release=true (top open reasoning model at release, matching DeepSeek-R1 at smaller scale); frontier_at_release=false.
+
+## Qwen3-32B
+- Source: https://qwenlm.github.io/blog/qwen3/
+- Supporting: https://huggingface.co/Qwen/Qwen3-32B
+- Key facts: total=32.8B, active=32.8B, context=32768 native / 131072 with YaRN, released=2025-04-29
+- License: Apache 2.0.
+- Architecture: dense, hybrid reasoning (thinking + non-thinking modes).
+- Notes: cap_reasoning=true (thinking mode), cap_tool_use=true (native MCP + function calling). frontier_open_at_release=false (Qwen3-235B-A22B is the flagship at same date). Using blog-stated 128K with YaRN (the HF card treats 32K native, 128K extended). Taking 131072 as release-era value since blog marketed 128K.
+
+## Qwen3-30B-A3B
+- Source: https://qwenlm.github.io/blog/qwen3/
+- Supporting: https://huggingface.co/Qwen/Qwen3-30B-A3B
+- Key facts: total=30.5B, active=3.3B, context=32768 native / 131072 with YaRN, released=2025-04-29
+- License: Apache 2.0.
+- Architecture: MoE (128 experts, 8 active), hybrid reasoning.
+- Notes: "Outcompetes QwQ-32B with 10x fewer activated params." cap_reasoning=true, cap_tool_use=true. Small MoE with exceptional performance/cost ratio. frontier_open_at_release=false (235B-A22B is the frontier sibling).
+
+## Qwen3-235B-A22B
+- Source: https://qwenlm.github.io/blog/qwen3/
+- Supporting: https://huggingface.co/Qwen/Qwen3-235B-A22B
+- Key facts: total=235B, active=22B (8/128 experts active), context=32768 native / 131072 with YaRN, released=2025-04-29
+- License: Apache 2.0.
+- Architecture: MoE, 94 layers, 128 experts, hybrid reasoning.
+- Notes: Flagship Qwen3. Competitive with DeepSeek-R1, o1, o3-mini, Grok-3, Gemini-2.5-Pro per blog. cap_reasoning=true (thinking mode default), cap_tool_use=true (MCP + function calling). frontier_open_at_release=true (top open model April 2025; DeepSeek-R1 earlier Jan 2025 was peer). frontier_at_release=false (overall frontier was GPT-5 class proprietary).
+
+## Qwen3-Coder-480B-A35B
+- Source: https://qwenlm.github.io/blog/qwen3-coder/
+- Supporting: https://github.com/QwenLM/Qwen3-Coder
+- Key facts: total=480B, active=35B, context=262144 native (256K) / 1048576 (1M with YaRN), released=2025-07-22
+- License: Apache 2.0.
+- Architecture: MoE, code-specialized.
+- Notes: "Most powerful open agentic code model." cap_code_specialized=true, cap_tool_use=true (agentic browser / shell), cap_reasoning=false (explicitly a non-thinking Instruct variant). frontier_open_at_release=true for code-specialized open models. Not overall frontier.
+
+## Qwen3-Max
+- Source: https://www.marktechpost.com/2025/09/24/alibabas-qwen3-max-production-ready-thinking-mode-1t-parameters-and-day-one-coding-agentic-bench-signals/
+- Supporting: https://x.com/Alibaba_Qwen/status/1963991502440562976 (Qwen team announcement, 1T+ parameters)
+- Key facts: total=~1T+ (over 1 trillion, exact undisclosed), active=unknown, context=262144 (256K), released=2025-09-05 (preview) / 2025-09-24 (GA)
+- License: proprietary, closed-weights (Qwen Chat + Alibaba Cloud API only).
+- Architecture: MoE (sparse).
+- Notes: API-only. First Qwen model >1T params. open_weights=false. param_disclosure=official (Qwen team announced "over 1 trillion"; active count not publicly disclosed). Using total=1000000000000 as lower-bound for the >1T claim. cap_reasoning=true (Qwen3-Max-Thinking variant). cap_tool_use=true. Using 2025-09-05 as announcement_date (Preview release). frontier_at_release=false (GPT-5 / Gemini 2.5 era); frontier_open_at_release=false (closed weights).
+
+## Qwen3-VL-235B-A22B
+- Source: https://github.com/QwenLM/Qwen3-VL
+- Supporting: https://www.unite.ai/alibaba-releases-qwen3-vl-technical-report-detailing-two-hour-video-analysis/
+- Key facts: total=235B, active=22B, context=262144 (256K native, 1M with YaRN), released=2025-09-23
+- License: Apache 2.0.
+- Architecture: MoE, multimodal (text + image + video).
+- Notes: Flagship Qwen3-VL. 2hr video understanding. 99.5% accuracy on 2hr needle-in-haystack. cap_vision=true, cap_video=true, cap_tool_use=true (visual agent with thinking variant). frontier_open_at_release=true (strongest open VLM Sept 2025).
+
+## Qwen3-Omni-30B-A3B
+- Source: https://github.com/QwenLM/Qwen3-Omni
+- Supporting: https://www.marktechpost.com/2026/03/30/alibaba-qwen-team-releases-qwen3-5-omni-a-native-multimodal-model-for-text-audio-video-and-realtime-interaction/ (positioning as successor)
+- Key facts: total=30B (30B-A3B), active=3B, context=32768 (65536 multi-GPU), released=2025-09-22
+- License: Apache 2.0.
+- Architecture: MoE with Thinker-Talker native multimodal architecture.
+- Notes: First Qwen omni-modal model with audio/video/text/image native. SOTA on 22/36 audio-video benchmarks. 119 text / 19 speech recognition / 10 speech generation languages. cap_vision=true, cap_audio=true, cap_video=true, cap_tool_use=true. frontier_open_at_release=true (strongest open omni-modal model).
+
+## Qwen3.5 (Qwen3.5-397B-A17B)
+- Source: https://www.alibabacloud.com/blog/qwen3-5-towards-native-multimodal-agents_602894
+- Supporting: https://www.cnbc.com/2026/02/17/china-alibaba-qwen-ai-agent-latest-model.html (release date, open weights status)
+- URL verification note: check-urls HEAD request redirects to /notfound, but WebFetch GET request returns full article text confirming "We are delighted to announce the official release of Qwen3.5, introducing the open-weight of the first model in the Qwen3.5 series, namely Qwen3.5-397B-A17B." and "397 billion total parameters, just 17 billion are activated per forward pass." This is a HEAD-vs-GET server quirk on alibabacloud.com blog URLs — the page is real and load-bearing for all row claims.
+- Key facts: total=397B, active=17B, context=1048576 (1M default for Qwen3.5-Plus hosted; open-weight native context not explicitly stated), released=2026-02-17
+- License: open-weight (Apache 2.0 per Alibaba Cloud blog; Plus hosted version proprietary)
+- Architecture: hybrid — Gated Delta Networks linear attention + sparse MoE; natively multimodal (text + vision + video).
+- Notes: 397B/17B ratio is extremely sparse. cap_vision=true, cap_video=true (blog covers video benchmarks). cap_audio not confirmed on this blog — Qwen3.5-Omni is a separate model (March 2026). cap_reasoning=true, cap_tool_use=true. frontier_open_at_release=true (largest open-weight multimodal MoE at Feb 2026, per CNBC/VentureBeat framing "beats its trillion-parameter sibling at lower cost"). frontier_at_release=false (GPT-5.5 / Claude Opus 4.6 / Gemini 3.1 Pro tier).
+
+## Qwen3.6-35B-A3B
+- Source: https://github.com/QwenLM/Qwen3.6
+- Supporting: https://www.aibase.com/news/27222 (35B/3B active disclosed)
+- Key facts: total=35B, active=3B, context=262144 (256K), released=2026-04-16
+- License: Apache 2.0.
+- Architecture: MoE, coding-focused.
+- Notes: "Agentic Coding Power, Now Open to All." cap_code_specialized=false (positioned for agentic coding but not pure code-only like Qwen3-Coder — leaving as false per PLAN convention: primarily code-marketed models). On reflection: the name is not -Coder, so cap_code_specialized=false; blog strongly coding-oriented though. Since context_window specifically not confirmed in either fetched source beyond "262,144 tokens based on deployment examples," marking 262144 based on GitHub repo docs reference. cap_reasoning=true (preserve_thinking mentioned in family). cap_tool_use=true.
+
+## Qwen3.6-27B
+- Source: https://github.com/QwenLM/Qwen3.6
+- Supporting: search results indicating 27B dense, 262K context, Apr 22 2026 release
+- Key facts: total=27B, active=27B, context=262144, released=2026-04-22
+- License: Apache 2.0.
+- Architecture: dense, multimodal (text + image + video per search results).
+- Notes: "Flagship-Level Coding in a 27B Dense Model." Released two days before the cutoff (2026-04-24). cap_vision=true, cap_video=true per one search snippet claiming multimodal; but blog-source for these capabilities not directly fetched — to be conservative, marking cap_vision/cap_video as false unless HF model card confirms. Leaving capabilities conservative pending confirmation.
+# bloom research notes
+
+## BLOOM 176B
+- Source: https://huggingface.co/bigscience/bloom (HF model card — official BigScience account)
+- Supporting: https://arxiv.org/abs/2211.05100 (BLOOM paper — supports architecture details, release framing)
+- Key facts: total_params=176,247,271,424 (~176B; embeddings 3.6B, 70 layers, 14336 hidden, 112 heads), active_params = total (dense), context_window=2048, announcement_date=2022-07-12 (Wikipedia cites July 12 2022; HF card says "Monday, 11.July.2022" — one day discrepancy; using 2022-07-12 per plan scope and common citation)
+- Architecture: dense decoder-only transformer, modified Megatron-LM GPT2, ALiBi positional encodings, GeLU
+- Languages: 46 natural + 13 programming languages
+- License: BigScience RAIL v1.0 (OpenRAIL-M family) — open weights, use restrictions but weights freely downloadable
+- frontier_open_at_release=true: first fully-open 100B+ multilingual model, surpassed OPT-175B on openness and multilingual coverage (July 2022)
+- frontier_at_release=false: not at overall SOTA vs closed PaLM 540B (Apr 2022) / Chinchilla
+- Cap flags: cap_text=true; vision/audio/video/code-specialized/reasoning/tool-use all false (general multilingual language model; training data includes code but it's a general LM, not code-specialized)
+- Notes: supporting_url (arXiv paper) supports architecture_type and corroborates params/context
+
+## BLOOMZ 176B
+- Source: https://huggingface.co/bigscience/bloomz (HF model card — official BigScience account)
+- Supporting: https://arxiv.org/abs/2211.01786 (BLOOMZ/mT0 paper — "Crosslingual Generalization through Multitask Finetuning")
+- Key facts: total_params=176B (same as BLOOM base), active_params=176B, context_window=2048 (inherited from BLOOM base), announcement_date=2022-11-03 (arXiv submission date)
+- Architecture: dense (BLOOM base fine-tuned via multitask prompted finetuning on xP3 dataset)
+- License: bigscience-bloom-rail-1.0 (OpenRAIL)
+- frontier_open_at_release=false by Nov 2022 BLOOMZ is instruction-tuned variant of existing BLOOM — does not push open-weights size frontier (same params as BLOOM which was already released)
+- frontier_at_release=false
+- Cap flags: cap_text=true, others false. This is an instruction/task-tuned model but pre-dates the "reasoning" category (no test-time thinking); tool-use not natively supported
+- Notes: supporting_url (arXiv) supports training method (MTF on xP3) and release framing
+# eleutherai research notes
+
+## GPT-Neo 2.7B
+- Source (release_url): https://github.com/EleutherAI/gpt-neo (official repo; states "Update 21/03/2021: We're proud to release two pretrained GPT-Neo models trained on The Pile")
+- Supporting_url: https://huggingface.co/EleutherAI/gpt-neo-2.7B (HF model card; supports license=MIT, arch=transformer replication of GPT-3, training details). The GitHub repo supplies n_ctx=2048 and release date.
+- Key facts: total_params=2.7e9, active=2.7e9, context=2048, released=2021-03-21, license=MIT, dense transformer
+- Notes: Per scope instructions, include the 2.7B (largest GPT-Neo variant) and skip the 1.3B as a separate row. At release, GPT-Neo 2.7B was the largest publicly available GPT-3-style model until GPT-J surpassed it in June 2021. frontier_open_at_release=true; frontier_at_release=false (GPT-3 175B was much larger). No tool-use, vision, reasoning, code-specialization.
+
+## GPT-J 6B
+- Source (release_url): https://www.eleuther.ai/artifacts/gpt-j (EleutherAI official artifact page)
+- Supporting_url: https://huggingface.co/EleutherAI/gpt-j-6b (HF model card; supports exact param count 6,053,381,344, context=2048 via nctx, license=Apache-2.0, training on 402B tokens on The Pile).
+- Key facts: total_params=6,053,381,344, active=6,053,381,344, context=2048, released=2021-06-09 (announcement by Aran Komatsuzaki; widely cited as June 9, 2021), license=Apache-2.0, dense transformer with RoPE
+- Notes: At release was the largest publicly available GPT-3-style autoregressive model. frontier_open_at_release=true. frontier_at_release=false. No vision/audio/video/code-specialization/reasoning/tool-use.
+
+## GPT-NeoX-20B
+- Source (release_url): https://blog.eleuther.ai/announcing-20b/ (EleutherAI official blog announcement, Feb 2 2022)
+- Supporting_url: https://huggingface.co/EleutherAI/gpt-neox-20b (HF model card; supports exact param count 20,554,567,680, max sequence length 2048, 44 layers, Apache-2.0)
+- Key facts: total_params=20,554,567,680, active=20,554,567,680, context=2048, announced=2022-02-02 (blog post date; weights became downloadable Feb 9, 2022), license=Apache-2.0, dense transformer with RoPE
+- Notes: Announced 2022-02-02; weights downloadable 2022-02-09. Using announcement date per schema. Largest dense open-weight autoregressive model at release (until Meta's OPT-175B in May 2022). frontier_open_at_release=true. frontier_at_release=false. arXiv paper 2204.06745 published April 2022. No vision/audio/code-specialization/reasoning/tool-use.
+
+## Pythia-12B
+- Source (release_url): https://arxiv.org/abs/2304.01373 (Pythia paper, submitted April 3, 2023)
+- Supporting_url: https://huggingface.co/EleutherAI/pythia-12b (HF model card; supports exact param count 11,846,072,320, trained on The Pile with 2M token batch, 36 layers, Apache-2.0. Pythia GitHub repo confirms n_ctx=2048.)
+- Key facts: total_params=11,846,072,320, active=11,846,072,320, context=2048, announced=2023-04-03 (arXiv v1 submission), license=Apache-2.0, dense transformer
+- Notes: Pythia was not an open-weights frontier claim — it is an interpretability research suite, and by April 2023 LLaMA-65B (Feb 2023) was already the open-weight frontier. frontier_open_at_release=false. frontier_at_release=false. No vision/audio/code-specialization/reasoning/tool-use.
+# falcon research notes
+
+## Falcon-7B
+- Source: https://huggingface.co/tiiuae/falcon-7b
+- Key facts: params=7B (dense), context=2048, architecture=causal decoder-only transformer, trained on 1.5T tokens RefinedWeb, Apache 2.0, announced/published May 2023 (training early March 2023)
+- Notes: Companion smaller release alongside Falcon 40B. Open-weights flagship era for 40B, not 7B. Use announcement_date 2023-05-25 (HF card publication near Falcon 40B launch). Supporting URL: none needed — HF card covers all fields.
+
+## Falcon-40B
+- Source: https://huggingface.co/tiiuae/falcon-40b
+- Supporting: https://huggingface.co/blog/falcon (HF ecosystem blog post dated 2023-06-05 with context on leaderboard #1 status)
+- Key facts: params=40B dense, context=2048, architecture=causal decoder-only transformer, trained on 1T tokens, Apache 2.0, TII
+- Notes: Announced/released late May 2023. Topped HF Open LLM Leaderboard May 29, 2023. Use announcement_date 2023-05-25. frontier_open_at_release=true (briefly #1 open-weight LLM between LLaMA era and Llama 2). supporting_url backs the leaderboard-#1 claim used to justify the frontier_open flag.
+
+## Falcon-180B
+- Source: https://huggingface.co/tiiuae/falcon-180B
+- Supporting: https://huggingface.co/blog/falcon-180b (HF blog with September 6 2023 date + 3.5T tokens + SOTA claim)
+- Key facts: params=180B dense, context=2048, architecture=causal decoder-only transformer, trained on 3.5T tokens, TII Falcon-180B license (restrictive commercial), announcement 2023-09-06
+- Notes: Unambiguously biggest open-weight LLM at release. frontier_open_at_release=true. Not globally frontier (behind GPT-4). The primary TII press release URL was 403 under automated fetch, so we use the HF model card as release_url and the HF blog as supporting_url — both lab-partnered official sources.
+
+## Falcon 2 11B
+- Source: https://huggingface.co/blog/falcon2-11b
+- Key facts: params=11B dense, context=8192, 11 languages, trained on 5T tokens, TII Falcon 2 License, release 2024-05-13
+- Notes: Base text-only. Companion VLM variant released same time. No frontier claims — much smaller than Llama 3 8B in params but positioned against it.
+
+## Falcon 2 11B VLM
+- Source: https://huggingface.co/blog/falcon2-11b
+- Key facts: params=11B (base LLM) + CLIP ViT-L/14 vision encoder (frozen, ~0.3B). Context 8192. Released 2024-05-13.
+- Notes: cap_vision=true. Separate row from base 11B. Vision encoder frozen during text-only pretraining, so total_params includes both. Estimate ~11.3B total. Marking param_disclosure=official for 11B text backbone; vision encoder added via CLIP ViT-L/14 which is well-known ~0.3B. Going to round to 11300000000 and flag in note.
+
+## Falcon Mamba 7B
+- Source: https://huggingface.co/tiiuae/falcon-mamba-7b
+- Supporting: https://huggingface.co/blog/falconmamba (HF announcement blog)
+- Key facts: params=7B pure SSM (Mamba-1), trained context 8192 (with no inference limit due to SSM), trained on 5.5T tokens, TII Falcon-Mamba License 2.0, release 2024-08-12
+- Notes: architecture_type=SSM. First major SSM open-weight 7B. Per HF card "training sequence length 8192". Using 8192 as context_window. frontier_open_at_release=false (not the largest open-weight — Llama 3.1 405B existed by then), but novel architecture.
+
+## Falcon 3 10B (flagship)
+- Source: https://falcon-lm.github.io/blog/falcon-3/
+- Supporting: https://huggingface.co/tiiuae/Falcon3-10B-Base (model card with exact params, context, training token counts)
+- Key facts: params=10B dense, context=32K, trained on 14T (7B base) + 2T depth-upscale (10B), Falcon LLM License 2.0, release 2024-12-17
+- Notes: No MoE variant in Falcon 3 family (verified via falcon-lm.github.io/blog/falcon-3). 10B is flagship. Not frontier_open_at_release — DeepSeek-V3 671B released in same month. Per instructions, picking flagship only + Mamba update companion.
+
+## Falcon3-Mamba-7B
+- Source: https://falcon-lm.github.io/blog/falcon-3/
+- Key facts: Continued pretraining of Falcon Mamba 7B with +1.5T tokens. 7B SSM. Released 2024-12-17.
+- Notes: Not a distinct architecture; still pure Mamba SSM, same params. Skipping this as duplicate row — not enough architectural novelty over Falcon Mamba 7B to warrant separate row per row-selection rules.
+
+## Falcon-H1 34B (flagship)
+- Source: https://falcon-lm.github.io/blog/falcon-h1/
+- Supporting: https://huggingface.co/tiiuae/Falcon-H1-34B-Base
+- Key facts: params=34B, architecture=hybrid Mamba-2 + Transformer, context=256K, Falcon LLM License (Apache 2.0 based), release 2025-05-20
+- Notes: architecture_type=hybrid. Flagship of Falcon-H1 family (0.5B to 34B). Matches Qwen2.5-72B and LLaMA 3.3 70B on benchmarks per TII claims. Not a globally frontier open-weight (DeepSeek-V3 671B much larger). Training tokens not disclosed on blog.
+
+## Falcon-H1R 7B (reasoning)
+- Source: https://falcon-lm.github.io/blog/falcon-h1r-7b/
+- Supporting: https://huggingface.co/blog/tiiuae/falcon-h1r-7b
+- Key facts: params=7B hybrid (Mamba + Transformer), context=256K, reasoning-tuned via SFT + RL, Falcon TII License, release 2026-01-05
+- Notes: cap_reasoning=true. Built on Falcon H1 7B base. Not frontier open-weight in absolute terms (still 7B), but TII's first explicit reasoning family. Uses hybrid architecture.
+# dbrx_arctic_grok1 research notes
+
+## Grok-1
+- Source: https://huggingface.co/xai-org/grok-1 (HF model card, Apache 2.0, 314B)
+- Supporting: https://github.com/xai-org/grok-1 (GitHub README: explicit 8 experts / 2 active per token, max seq length 8192)
+- Key facts: total_params=314B, active=~78.5B (25% of weights active per token, 2 of 8 experts), context=8192, released 2024-03-17, open weights Apache 2.0
+- Notes: xAI blog x.ai/news/grok-os returns Cloudflare 403 to automated fetches, using HF card as release_url and GitHub README as supporting_url (supports context_window=8192, expert config, and active-params fraction). active_params = 314B * 0.25 ~= 78.5B (xAI/HF statement "25% of weights are active on a given token"). No native tool use, no vision. Not a test-time-reasoning model.
+- Frontier open at release: true — on 2024-03-17 Grok-1 was the largest open-weight model by total parameters (larger than Falcon-180B, Mixtral 8x7B). Brief window before DBRX (Mar 27) and Llama 3 (Apr 18).
+
+## DBRX
+- Source: https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm (official Databricks announcement with 132B/36B, 16 experts / 4 active, 32K context, Databricks Open Model License)
+- Supporting: none needed — release blog covers params, architecture, context, license.
+- Key facts: total_params=132B, active=36B, context=32768, released 2024-03-27, open weights under Databricks Open Model License (bespoke non-Apache), 16 experts / 4 active (fine-grained MoE)
+- Notes: Blog explicitly states "132B total / 36B active". Native tool/function calling NOT supported at release per HF model card and Databricks' own analysis ("DBRX models do not support native code execution, or other forms of function-calling"). Not vision, not reasoning-family, not code-specialized (general-purpose enterprise LLM).
+- Frontier open at release: true — briefly led Mar 2024 open leaderboards (beat Mixtral 8x7B, Grok-1, Llama 2 70B on most benchmarks) until Llama 3 70B on 2024-04-18. ~3 week window.
+
+## Snowflake Arctic
+- Source: https://www.snowflake.com/en/blog/arctic-open-efficient-foundation-language-models-snowflake/ (Snowflake announcement, 480B/17B, Apache 2.0, Dense-MoE hybrid)
+- Supporting: https://huggingface.co/Snowflake/snowflake-arctic-instruct (HF card confirms Dense-MoE Hybrid architecture: 10B dense + 128x3.66B MoE MLP, top-2 gating, Apache-2.0)
+- Key facts: total_params=480B, active=17B, context=4096, released 2024-04-24, open weights Apache 2.0, architecture "Dense-MoE Hybrid" (categorized as MoE per our enum — hybrid enum value is reserved for SSM+transformer like Jamba)
+- Notes: 4K context window is smallest of the three — blog mentions planned sliding-window extension but release-time is 4096. 17B active is small for 480B total; Snowflake's pitch was training-efficiency, not capability frontier. Not code-specialized (general-purpose enterprise model, though HumanEval is part of their "enterprise intelligence" suite). No native tool use announced.
+- Frontier open at release: false — released 6 days after Llama 3 70B (Apr 18), which clearly outperformed Arctic on most open benchmarks despite having fewer total params. Arctic was notable for total-params and training efficiency but not capability-frontier.
+# other_open research notes
+
+## StableLM 7B (Alpha)
+- Source: https://stability.ai/news-updates/stability-ai-launches-the-first-of-its-stablelm-suite-of-language-models
+- Supporting: https://huggingface.co/stabilityai/stablelm-base-alpha-7b (context window 4096)
+- Key facts: params=7B dense, context=4096, released=2023-04-19, open CC BY-SA-4.0
+- Notes: Alpha release; was not frontier at release (overshadowed by LLaMA-1). frontier_open_at_release=false. supporting_url backs context_window and precise parameter figure.
+
+## StableLM 2 1.6B
+- Source: https://stability.ai/news-updates/introducing-stable-lm-2
+- Supporting: https://huggingface.co/stabilityai/stablelm-2-1_6b (1.644B params exact, 4096 context)
+- Key facts: params=1.6B (exact 1,644,417,024), context=4096, released=2024-01-19
+- Notes: Multilingual model trained on 2T tokens. Small; not frontier; not frontier-open.
+
+## MPT-7B
+- Source: https://www.databricks.com/blog/mpt-7b
+- Key facts: params=6.7B dense, context=2048 (base; StoryWriter variant 65k), released=2023-05-05, Apache-2.0
+- Notes: Was comparable to LLaMA-7B at release. Not frontier-open (LLaMA-1 65B was larger).
+
+## MPT-30B
+- Source: https://www.databricks.com/blog/mpt-30b
+- Key facts: params=30B dense, context=8192, released=2023-06-22, Apache-2.0
+- Notes: Notable for 8k context window (vs 2k LLaMA/Falcon). Not frontier; not frontier-open at release (LLaMA-1 65B larger; Falcon-40B comparable).
+
+## RedPajama-INCITE-7B
+- Source: https://www.together.ai/blog/redpajama-models-v1
+- Supporting: https://huggingface.co/togethercomputer/RedPajama-INCITE-7B-Base (6.9B exact, Pythia-based)
+- Key facts: params=6.9B dense, context=2048 (Pythia arch), released=2023-05-05, Apache-2.0
+- Notes: Intended as open replication of LLaMA recipe. supporting_url backs exact param count and architecture. Not frontier-open.
+
+## StarCoder
+- Source: https://arxiv.org/abs/2305.06161
+- Supporting: https://huggingface.co/bigcode/starcoder (confirms 15.5B params, 8192 context)
+- Key facts: params=15.5B dense, context=8192, released=2023-05-09 (arXiv v1), OpenRAIL license (open_weights=true)
+- Notes: Was the largest/most capable open code LLM at release. cap_code_specialized=true. frontier_open_at_release=true (largest open *code* model, and open code was under-served). Note: "frontier open" here applies to code niche.
+
+## StarCoder2 15B
+- Source: https://arxiv.org/abs/2402.19173
+- Supporting: https://huggingface.co/bigcode/starcoder2-15b (context 16384, sliding window 4096)
+- Key facts: params=15B dense, context=16384, released=2024-02-28 (arxiv) / 2024-02-29
+- Notes: Outperforms CodeLlama-34B at release. cap_code_specialized=true. In 2024-02 DeepSeek-Coder 33B and CodeLlama-70B existed; StarCoder2 was not the largest open-code model, so frontier_open_at_release=false (conservative).
+
+## OLMo 7B
+- Source: https://allenai.org/blog/olmo-open-language-model-87ccfc95f580
+- Supporting: https://huggingface.co/allenai/OLMo-7B (context 2048)
+- Key facts: params=7B dense, context=2048, released=2024-02-01, Apache-2.0
+- Notes: Fully-open: weights + training data + logs. Not frontier (Llama-2 70B + Mixtral existed). Not frontier-open.
+
+## OLMo 2 13B
+- Source: https://allenai.org/blog/olmo2
+- Supporting: https://huggingface.co/allenai/OLMo-2-1124-13B (context 4096)
+- Key facts: params=13B dense, context=4096, released=2024-11-26, Apache-2.0
+- Notes: Outperforms Qwen 2.5 7B; competitive with best open-weight models. But small scale; not frontier-open (Qwen2.5 72B, Llama 3.1 405B larger).
+
+## Jamba (v0.1)
+- Source: https://www.ai21.com/blog/announcing-jamba/
+- Supporting: https://arxiv.org/abs/2403.19887 (Jamba paper confirming 52B total, 12B active, hybrid SSM-Transformer MoE)
+- Key facts: params=52B total / 12B active, context=256000, released=2024-03-28, Apache-2.0
+- Notes: First production-grade SSM-Transformer hybrid. architecture_type=hybrid. Not frontier-open overall (Mixtral 8x22B and Llama-3 coming right after), but a novel architecture milestone.
+
+## Jamba 1.5 Large
+- Source: https://huggingface.co/ai21labs/AI21-Jamba-Large-1.5
+- Key facts: params=398B total / 94B active, context=256000, released=2024-08-22, Jamba Open Model License (open_weights=true)
+- Notes: Scaled hybrid architecture. Function calling + JSON output supported at release (cap_tool_use=true). Not frontier (Llama-3.1 405B was released a month earlier and was more capable on standard benchmarks). frontier_open_at_release=false.
+# yi research notes
+
+## Yi-6B
+- Source: https://huggingface.co/01-ai/Yi-6B
+- Key facts: params=6B, active=6B, context=4096, released=2023-11-02, arch=dense (Llama-style transformer)
+- License: Apache 2.0 (Yi license earlier, relicensed to Apache 2.0).
+- Context: 4K at release, can be extended at inference time to 32K, and a separate Yi-6B-200K variant (Nov 5 2023) exists. Per scope we keep release-time context (4K) on the main row.
+- open_weights=true, frontier_at_release=false, frontier_open_at_release=false (Yi-34B is the family flagship).
+- cap_code_specialized=false, cap_reasoning=false, cap_tool_use=false (no native tool calling at release).
+- supporting_url: none needed — HF card covers params, context, date, architecture.
+
+## Yi-34B
+- Source: https://huggingface.co/01-ai/Yi-34B
+- Key facts: params=34B, active=34B, context=4096, released=2023-11-02, arch=dense (Llama-style transformer), trained on 3T multilingual corpus.
+- open_weights=true. At release, Yi-34B topped Hugging Face Open LLM Leaderboard (pretrained) above Falcon-180B and Llama-2-70B in English and Chinese — so frontier_open_at_release=true (best open-weight small-flagship of its era). Not overall frontier (GPT-4, Claude 2.1, Gemini 1.0 Ultra announced same era) → frontier_at_release=false.
+- cap_code_specialized=false, cap_reasoning=false, cap_tool_use=false.
+- supporting_url: none needed.
+
+## Yi-VL-6B
+- Source: https://huggingface.co/01-ai/Yi-VL-6B
+- Key facts: params ~ 6.6B total (Yi-6B-Chat decoder + CLIP ViT-H/14 vision encoder ~ 0.6B); released 2024-01-23 (per Yi GitHub README News section; scope says "Jan 22" but the primary source says Jan 23).
+- Exact total params not printed, so using 6B decoder figure as total_params with param_source_note explaining the LLaVA-style decomposition. param_disclosure=official for the decoder count; encoder adds ~0.6B that is not summed officially, leaving total ambiguous → safest is to match scope and label param_disclosure=official using the 6B headline number, noting the extra encoder in param_source_note.
+- Actually per PLAN.md convention: "For multimodal models with a vision/audio encoder: decoder + encoder(s) summed (e.g., Pixtral 12B is 12B decoder + 0.4B vision encoder → 12400000000)." CLIP ViT-H/14 is ~0.632B params → total_params ≈ 6.6B. Using 6632000000.
+- Context: 4K (inherited from Yi-6B-Chat base); HF card does not override. Using 4096.
+- cap_vision=true, open_weights=true, frontier_open_at_release=false (VL models weren't the overall open-weight frontier).
+- supporting_url: https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K (backs the vision encoder size — actually will omit and just reference in note, since the CLIP ViT-H/14 encoder size is widely stated but not strictly needed in the release_url).
+- Keep supporting_url blank; param_source_note will acknowledge the decoder-only figure caveat.
+
+## Yi-VL-34B
+- Source: https://huggingface.co/01-ai/Yi-VL-34B
+- Key facts: params ~ 34.6B total (Yi-34B-Chat decoder + CLIP ViT-H/14 ~0.6B vision encoder), released 2024-01-23.
+- Context: 4K (inherited), cap_vision=true, open_weights=true.
+- frontier_open_at_release=false. Note that 01.AI claims it was "first open-source 34B VLM" but was not pushing the open-weight frontier (that was Llama-2-70B / Mixtral / Falcon-180B in the base-LM track).
+- supporting_url: blank; same caveat as Yi-VL-6B.
+
+## Yi-9B
+- Source: https://huggingface.co/01-ai/Yi-9B
+- Key facts: params=9B (HF "Model size" tag = 9B params; an older HF blog post references 8.8B as a more granular count), active=same, context=4096, released=2024-03-06, arch=dense. Built by depth-expanding Yi-6B (48 layers from 32) then continued pretraining with 0.8T more tokens.
+- Using 9000000000 for total_params to match the official HF card's Model size metadata. param_disclosure=official.
+- open_weights=true, frontier_open_at_release=false (size-class not flagship).
+- supporting_url: blank.
+
+## Yi-1.5 9B
+- Source: https://huggingface.co/01-ai/Yi-1.5-9B
+- Key facts: params=9B (Yi-1.5 retrains 6/9/34B size class), context=4096 base (also 16K/32K variants), released=2024-05-13, arch=dense.
+- open_weights=true, frontier_open_at_release=false.
+- supporting_url: blank.
+
+## Yi-1.5 34B
+- Source: https://huggingface.co/01-ai/Yi-1.5-34B
+- Key facts: params=34B, context=4096 base (16K/32K variants), released=2024-05-13, arch=dense, pretrained on 3.6T tokens with an additional 500B high-quality tokens over Yi-34B; 3M SFT samples.
+- open_weights=true, frontier_open_at_release=false (Llama-3-70B Apr 2024 already out, Qwen2-72B imminent).
+- supporting_url: blank.
+
+## Yi-Large
+- Source: https://www.01.ai/yi-models
+- Key facts: closed-weight proprietary flagship, announced 2024-05-13 together with Yi-1.5. 01.AI never disclosed parameter count officially. Pandaily and Chinese tech press cite "trillion-parameter" figures but these are unverified secondary claims.
+- Per scope instructions: open_weights=false, param_disclosure=unknown, total_params/active_params blank.
+- Architecture: unknown (speculated dense or MoE, no official statement). Leaving as "dense" would be a guess; PLAN.md enum doesn't have an "unknown" architecture — using "dense" is the conservative default per Yi family convention (no MoE in the open Yi series) but that is itself an estimate. Chose "dense" with a param_source_note caveat.
+- Context: 32K per 01.ai platform docs (Yi-Large 32K available on the API).
+- cap_tool_use=true (Yi-Large has function calling on 01.ai API per platform docs; will cite the 01.ai platform page as supporting_url).
+- supporting_url: https://platform.01.ai/docs — supports context_window and tool-use flag.
+
+## Yi-Lightning
+- Source: https://arxiv.org/abs/2412.01253
+- Key facts: released 2024-10-16 (announcement via @01AI_Yi on X); tech report published Dec 2024 on arXiv. MoE architecture with fine-grained expert segmentation; tech report explicitly confirms MoE but deliberately omits parameter counts.
+- Per scope: open_weights=false, param_disclosure=unknown, total/active blank. architecture_type=MoE (confirmed by tech report abstract + body).
+- Context: 64K (tech report explicitly states "we apply additional long-context training to extend the context window to 64K tokens").
+- cap_tool_use=true (available on 01.ai API, which offers function calling across its models).
+- supporting_url: https://x.com/01AI_Yi/status/1845776529185476613 — supports the 2024-10-16 announcement date, since the arXiv abstract doesn't print the public-release date.
+
+## Yi-Coder-9B
+- Source: https://huggingface.co/01-ai/Yi-Coder-9B
+- Key facts: params=9B, context=128000, released=2024-09-05, arch=dense, code-specialized (52 programming languages, 85.4% HumanEval, 23.4% LiveCodeBench).
+- open_weights=true (Apache 2.0 per repo), cap_code_specialized=true, cap_tool_use=false (no native tool calling).
+- frontier_open_at_release=false (specialized code model, not a general-purpose flagship). DeepSeek-Coder-V2 was arguably the open-code frontier in mid-2024.
+- supporting_url: blank.
+
+## Yi-Coder-1.5B
+- Source: https://huggingface.co/01-ai/Yi-Coder-1.5B
+- Key facts: params=1.5B, context=128000, released=2024-09-05, arch=dense, code-specialized.
+- Note: user scope says "Yi-Coder 9B/34B" but 01.AI actually released 1.5B and 9B (no 34B Coder). Including the 1.5B as the companion per their actual release, and omitting the (non-existent) 34B variant.
+- open_weights=true, cap_code_specialized=true, frontier_open_at_release=false.
+- supporting_url: blank.
+# nemotron research notes
+
+## Nemotron-4 15B
+- Source: https://arxiv.org/abs/2402.16819 (release_url)
+- Key facts: 15B dense decoder-only transformer; trained on 8T tokens; submitted Feb 26, 2024; multilingual focus
+- Context window not explicitly stated in abstract; standard Nemotron-4 arch uses 4k seq length (confirmed for 340B). Using 4096 based on broader family convention. Note: announcement_date set to 2024-02-26 (arXiv v1).
+- No official HF model card released for the 15B (NVIDIA never shipped public weights for this one; paper-only announcement was the main public artifact).
+- open_weights=false — Nemotron-4 15B weights were NOT released publicly; the paper is technical disclosure only (unlike the later 340B release).
+- frontier_open_at_release=false (weights not open); frontier_at_release=false (not SOTA at 15B scale — Mistral 7B / Gemma were competitive).
+- cap_reasoning=false, cap_tool_use=false, cap_code_specialized=false (general-purpose multilingual).
+
+## Nemotron-4 340B
+- Source: https://blogs.nvidia.com/blog/nemotron-4-synthetic-data-generation-llm-training/ (release_url)
+- Supporting: https://huggingface.co/nvidia/Nemotron-4-340B-Instruct (supporting_url — supports 4096 context window, dense arch, NVIDIA Open Model License, 340B params confirmation)
+- Key facts: 340B dense decoder-only transformer (GQA, RoPE); announced Jun 14, 2024; trained on 9T tokens; context 4096; NVIDIA Open Model License (permissive commercial use); released as Base, Instruct, Reward variants
+- frontier_open_at_release=true — at June 2024 this was the largest open-weights dense model (Llama 3 70B was current open flagship; Llama 3.1 405B didn't arrive until July 23, 2024). Briefly the open-weights frontier.
+- frontier_at_release=false — well behind GPT-4o, Claude 3.5 Sonnet (Jun 2024) on general benchmarks.
+- cap_tool_use=false (no native function calling advertised); cap_reasoning=false; cap_code_specialized=false.
+
+## Nemotron-Mini-4B-Instruct
+- Source: https://huggingface.co/nvidia/Nemotron-Mini-4B-Instruct (release_url)
+- Key facts: 4B dense; 4096 context; NVIDIA Community Model License (Aug 2024); fine-tuned from Minitron-4B-Base (pruned/distilled from Nemotron-4 15B); optimized for roleplay, RAG, function calling
+- Trained Feb–Aug 2024; HF release approximately Sep 2024 (announcement_date=2024-09-18 per the HF commit history and license PDF dated Aug 2024)
+- open_weights=true; cap_tool_use=true (explicitly trained for function calling per card); cap_reasoning=false; cap_code_specialized=false
+- Not frontier — small specialized on-device model.
+
+## Llama-3.1-Nemotron-70B-Instruct
+- Source: https://huggingface.co/nvidia/Llama-3.1-Nemotron-70B-Instruct (release_url)
+- Key facts: 70B dense (Llama 3.1 architecture); RLHF tune of Llama-3.1-70B-Instruct using HelpSteer2 and REINFORCE; announced Oct 1, 2024 (benchmarks dated "As of 1 Oct 2024"); HF release Oct 15, 2024; 128k context (inherits from Llama 3.1); NVIDIA Open Model License + Llama 3.1 Community License
+- Topped AlpacaEval 2 LC, Arena Hard, MT-Bench briefly — "briefly led some benchmarks" confirmed
+- frontier_at_release=false (alignment-benchmark winner, not overall SOTA on reasoning/general); frontier_open_at_release=false (Llama 3.1 405B was the larger/more capable open model at that time)
+- cap_reasoning=false (standard RLHF tune, no test-time thinking); cap_tool_use=true (Llama 3.1 supports tool use natively).
+- announcement_date=2024-10-15 (HF availability / NVIDIA announcement post)
+
+## Nemotron-H-56B-Base
+- Source: https://arxiv.org/abs/2504.03624 (release_url)
+- Supporting: https://huggingface.co/nvidia/Nemotron-H-56B-Base-8K (supporting_url — supports 56B param count, 8k context, hybrid Mamba-Transformer arch, Apr 14 2025 release date, research-only license)
+- Key facts: 56B hybrid Mamba-Transformer (Mamba-2 + MLP + 10 Attention layers); 8k context at release; trained on 20T tokens in FP8; arXiv submission Apr 4, 2025; HF release Apr 14, 2025; also 47B compressed variant via MiniPuzzle
+- open_weights=true (downloadable on HF) BUT NVIDIA Internal Scientific Research and Development License — research-only, not commercial. Still counts as open_weights=true per schema (any license = true).
+- architecture_type=hybrid (SSM + transformer)
+- cap_reasoning=false (base model, not reasoning-tuned); cap_tool_use=false
+- frontier_open_at_release=false (Llama 3.1 405B, DeepSeek-V3 671B were open flagships).
+- Picked the 56B as the headline; the 47B is a compression/distillation variant.
+
+## Llama-3.1-Nemotron-Nano-8B-v1
+- Source: https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-8B-v1 (release_url)
+- Key facts: 8B dense; derived from Llama 3.1 8B Instruct; 128k context; released Mar 18, 2025 (GTC 2025); dual-mode reasoning (thinking on/off); NVIDIA Open Model License + Llama 3.1 Community License
+- cap_reasoning=true (explicit test-time reasoning mode), cap_tool_use=true
+
+## Llama-3.3-Nemotron-Super-49B-v1
+- Source: https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1 (release_url)
+- Supporting: https://nvidianews.nvidia.com/news/nvidia-launches-family-of-open-reasoning-ai-models-for-developers-and-enterprises-to-build-agentic-ai-platforms (supporting_url — supports GTC 2025 launch date, open reasoning family positioning)
+- Key facts: 49B dense (NAS-distilled from Llama-3.3-70B-Instruct); 128k context; released Mar 18, 2025; dual-mode reasoning; NVIDIA Open Model License + Llama 3.3 Community License
+- architecture_type=dense (even with NAS pruning of some attention blocks, still a transformer decoder)
+- cap_reasoning=true, cap_tool_use=true
+
+## Llama-3.1-Nemotron-Ultra-253B-v1
+- Source: https://huggingface.co/nvidia/Llama-3_1-Nemotron-Ultra-253B-v1 (release_url)
+- Supporting: https://developer.nvidia.com/blog/build-enterprise-ai-agents-with-advanced-open-nvidia-llama-nemotron-reasoning-models/ (supporting_url — supports the Ultra release framing, GTC 2025 Llama Nemotron family launch)
+- Key facts: 253B dense (NAS-distilled from Llama-3.1-405B-Instruct); 128k context; released Apr 7, 2025; dual-mode reasoning; NVIDIA Open Model License + Llama 3.1 Community License
+- At release: "outperforms DeepSeek R1 at half the size" — competitive open reasoning model but DeepSeek-V3 671B / Llama 4 etc. larger open models exist
+- frontier_open_at_release=false (DeepSeek-R1 671B, Llama 4 Maverick 400B MoE were contemporaneous open-weights larger/more capable flagships in Apr 2025)
+- cap_reasoning=true, cap_tool_use=true
+
+## NVIDIA-Nemotron-Nano-9B-v2
+- Source: https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2 (release_url)
+- Key facts: 9B hybrid Mamba-2 + Transformer (Nemotron-H arch); 128k context; released Aug 18, 2025; dual-mode reasoning; NVIDIA Open Model License; trained on ~20T tokens; compressed from 12B base via Minitron
+- architecture_type=hybrid (SSM + transformer)
+- cap_reasoning=true, cap_tool_use=true
+
+## NVIDIA-Nemotron-3-Nano-30B-A3B
+- Source: https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 (release_url)
+- Supporting: https://nvidianews.nvidia.com/news/nvidia-debuts-nemotron-3-family-of-open-models (supporting_url — supports Nemotron 3 family announcement date Dec 15 2025)
+- Key facts: 30B total, 3.5B active hybrid Mamba-2 + Transformer + MoE (128 routed experts + 1 shared, 6 activated per token); 1M context native (256k default on HF); released Dec 15, 2025; 25T training tokens; NVIDIA Nemotron Open Model License
+- architecture_type=hybrid (SSM + transformer + MoE — fits hybrid bucket better than pure MoE)
+- cap_reasoning=true (unified reasoning model per NVIDIA positioning), cap_tool_use=true
+- Note: active_params uses routed-active figure of 3.5B (HF card) rather than the press-release 3B rounding.
+
+## NVIDIA-Nemotron-3-Super-120B-A12B
+- Source: https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/ (release_url)
+- Supporting: https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8 (supporting_url — supports 120B/12B params, 1M context, NVFP4 pretraining, arch details)
+- Key facts: 120B total / 12B active hybrid Mamba-2 + Transformer + LatentMoE + Multi-Token Prediction; 1M context; announced Mar 11, 2026; NVFP4 pretraining on Blackwell; NVIDIA Nemotron Open Model License; reasoning mode configurable
+- architecture_type=hybrid (SSM + transformer + MoE)
+- cap_reasoning=true, cap_tool_use=true
+- frontier_open_at_release=false (DeepSeek-V3.2 / Llama 5 etc. contemporaneous open flagships larger)
+# phi research notes
+
+## Phi-1
+- Source: https://arxiv.org/abs/2306.11644 (arXiv submission 2023-06-20)
+- HF card: https://huggingface.co/microsoft/phi-1
+- Key facts: total_params=1.3B, active=1.3B (dense), context=2048, released=2023-06-20, license=MIT
+- Notes: Code-specialized model (Python coding via HumanEval/MBPP focus). Paper title "Textbooks Are All You Need". Context window 2048 is standard for this generation (confirmed in HF model config for microsoft/phi-1 - same tokenizer base as CodeGen, max_position_embeddings=2048). Weights initially research-only license, later changed to MIT. Training: 54B tokens on 8 A100 GPUs for 6 days. cap_code_specialized=true. Open-weights frontier for small code models at its size, but not frontier-at-release globally (1.3B).
+- release_url = arxiv paper (primary source stating params, code specialization, architecture); supporting_url = HF card (supports MIT license, context window, open weights)
+
+## Phi-1.5
+- Source: https://arxiv.org/abs/2309.05463 (arXiv 2023-09-11)
+- HF card: https://huggingface.co/microsoft/phi-1_5
+- Key facts: total_params=1.3B, active=1.3B, context=2048, released=2023-09-11, license=MIT
+- Notes: "Textbooks Are All You Need II" technical report. General-purpose (common sense, reasoning, language understanding) not code-specialized. Trained on 30B tokens, 150B tokens seen total. Same 2048 context as Phi-1. MIT license per HF card. Not frontier globally; not the largest open-weight (LLaMA 65B existed already). False for both frontier flags.
+- release_url = arxiv; supporting_url = HF card (supports license, open-weights status)
+
+## Phi-2
+- Source: https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/
+- HF card: https://huggingface.co/microsoft/phi-2
+- Key facts: total_params=2.7B, active=2.7B, context=2048, released=2023-12-12, license=MIT
+- Notes: Blog announcement Dec 12, 2023; Satya Nadella first teased at Ignite Nov 2023 but official public release was Dec 12. Trained on 1.4T tokens. No RLHF/instruction-tune. Not code-specialized (general). 2048 context. Initially released under Microsoft Research License, later relicensed to MIT in Jan 2024. For this row we record final disclosed params (official) and MIT license per HF card. Not frontier; not open-frontier (Mixtral 8x7B released same week, Llama 2 70B much bigger).
+- release_url = MS Research blog (primary, states 2.7B params, 1.4T tokens, release date); supporting_url = HF card (supports context window 2048 and MIT license)
+
+## Phi-3-mini
+- Source: https://arxiv.org/abs/2404.14219 (Phi-3 Technical Report)
+- Blog: https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/
+- Key facts: total_params=3.8B, active=3.8B (dense), context=4096 (base) / 128000 (extended variant), released=2024-04-23, license=MIT
+- Notes: Announced Apr 23, 2024 at same time as tech report. Two context variants: 4K and 128K. Using 128K as release-time context since released simultaneously and is the headline "first in class for very long contexts" per blog. Trained on 3.3T tokens. Not code-specialized. Not frontier-at-release globally; not largest open-weight (Llama 3 70B released earlier same month; DBRX 132B exists). False for frontier flags.
+- release_url = arxiv paper (primary, states all params, architecture); supporting_url = Azure blog (supports release date, 128K variant existence, MIT license)
+
+## Phi-3-small
+- Source: https://arxiv.org/abs/2404.14219
+- Blog: https://azure.microsoft.com/en-us/blog/new-models-added-to-the-phi-3-family-available-on-microsoft-azure/
+- Key facts: total_params=7B, active=7B, context=128000 (also 8K variant), released=2024-05-21, license=MIT
+- Notes: Announced May 21, 2024 at Microsoft Build. Trained on 4.8T tokens. Dense. Two context variants (8K and 128K). Using 128K as the headline figure consistent with Phi-3-mini treatment.
+- release_url = arxiv (params, architecture); supporting_url = Azure blog (release date May 21, 128K variant)
+
+## Phi-3-medium
+- Source: https://arxiv.org/abs/2404.14219
+- Blog: https://azure.microsoft.com/en-us/blog/new-models-added-to-the-phi-3-family-available-on-microsoft-azure/
+- Key facts: total_params=14B, active=14B, context=128000 (also 4K variant), released=2024-05-21, license=MIT
+- Notes: Announced at Build 2024 May 21. Dense 14B. Trained on 4.8T tokens. Not frontier globally; not largest open-weight (Llama 3 70B bigger, DBRX bigger). False frontier flags.
+- release_url = arxiv; supporting_url = Azure blog
+
+## Phi-3-vision
+- Source: https://arxiv.org/abs/2404.14219 (revised v3 added Phi-3-vision May 23)
+- HF: https://huggingface.co/microsoft/Phi-3-vision-128k-instruct
+- Key facts: total_params=4.2B, active=4.2B (dense), context=128000, released=2024-05-21, license=MIT
+- Notes: 4.2B = Phi-3-mini backbone (3.8B) + image encoder + connector/projector. Announced at Build 2024. cap_vision=true. Training: 500B vision+text tokens, 1.5 days on 512 H100s.
+- release_url = HF card (primary for this specific variant - states 4.2B, release date, cap_vision); supporting_url = arxiv paper (supports architecture and 4.2B description in v3)
+
+## Phi-3.5-mini
+- Source: https://huggingface.co/microsoft/Phi-3.5-mini-instruct
+- Blog: https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280
+- Key facts: total_params=3.8B, active=3.8B, context=128000, released=2024-08-20, license=MIT
+- Notes: Announced August 20/21, 2024 per Microsoft tech community blog (post date Aug 22 but HF upload Aug 20). Trained on 3.4T tokens with 512 H100s over 10 days. Dense decoder-only. Multilingual focus vs Phi-3-mini. Using 2024-08-20 as announcement_date (HF model upload date).
+- release_url = HF card (primary for params, context, release); supporting_url = MS tech community blog (release date confirmation, multilingual feature)
+
+## Phi-3.5-MoE
+- Source: https://huggingface.co/microsoft/Phi-3.5-MoE-instruct
+- Blog: https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/announcing-the-availability-of-phi-3-5-moe-in-azure-ai-studio-and-github/4256278
+- Key facts: total_params=42B, active=6.6B, context=128000, released=2024-08-20, license=MIT, architecture=MoE
+- Notes: 16 experts, 2 active per token. HF card says "16 × 3.8B parameters" with 6.6B active using 2 experts — does not literally print "42B" but Microsoft's Azure Foundry announcement post explicitly states "the Phi-3.5-MoE model has 42B total parameters but activates only 6.6B of them". Using 42,000,000,000 total. Note: naive 16*3.8 = 60.8B but experts share attention and embedding weights per standard MoE convention, which gives the 42B effective total. Training: 4.9T tokens, 23 days on 512 H100s.
+- release_url = HF card (supports active, context, release, MoE architecture); supporting_url = MS Azure Foundry blog (supports 42B total params explicitly)
+
+## Phi-3.5-vision
+- Source: https://huggingface.co/microsoft/Phi-3.5-vision-instruct
+- Blog: https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/discover-the-new-multi-lingual-high-quality-phi-3-5-slms/4225280
+- Key facts: total_params=4.2B, active=4.2B, context=128000, released=2024-08-20, license=MIT
+- Notes: Multi-frame image understanding focus. Architecture: image encoder + Phi-3.5-mini backbone. cap_vision=true. Same 4.2B headline as Phi-3-vision but updated with multi-frame capability.
+- release_url = HF card (supports params, release, vision capability); supporting_url = MS tech community blog (announcement context)
+
+## Phi-4
+- Source: https://arxiv.org/abs/2412.08905 (Phi-4 Technical Report, Dec 12, 2024)
+- HF: https://huggingface.co/microsoft/phi-4
+- Key facts: total_params=14B, active=14B (dense), context=16384, released=2024-12-12, license=MIT
+- Notes: 14B dense decoder-only. Context extended to 16K during midtraining (paper states "default context length of 4096... later extended to a 16K context length during midtraining"). Using 16K as release-time context. Pretrained on ~10T tokens. Initially released Dec 12, 2024 on Azure Foundry, weights published on HF Jan 2025 under MIT.
+- release_url = arxiv (primary, all key facts including 16K context); supporting_url = HF card (MIT license, open weights)
+
+## Phi-4-multimodal
+- Source: https://huggingface.co/microsoft/Phi-4-multimodal-instruct
+- Blog: https://azure.microsoft.com/en-us/blog/empowering-innovation-the-next-generation-of-the-phi-family/
+- Key facts: total_params=5.6B, active=5.6B, context=128000, released=2025-02-26, license=MIT
+- Notes: Multimodal: text + vision + audio. 5.6B params total (Phi-4-mini backbone + vision encoder + audio encoder). Audio: supports speech recognition, translation, summarization. Vision: JPG/PNG etc. cap_vision=true, cap_audio=true. Release Feb 26, 2025 per SiliconAngle; HF upload around same date.
+- release_url = HF card (primary for params, multimodal features); supporting_url = Azure blog (release date, announcement context)
+
+## Phi-4-mini
+- Source: https://huggingface.co/microsoft/Phi-4-mini-instruct
+- Blog: https://azure.microsoft.com/en-us/blog/empowering-innovation-the-next-generation-of-the-phi-family/
+- Key facts: total_params=3.8B, active=3.8B, context=128000, released=2025-02-26, license=MIT
+- Notes: Dense decoder-only Transformer with grouped-query attention (upgrade from Phi-3.5-mini). 200K vocabulary, shared input/output embeddings. Trained on 5T tokens on 512 A100s over 21 days. Supports function/tool calling per HF card.
+- release_url = HF card; supporting_url = Azure blog
+
+## Phi-4-reasoning
+- Source: https://huggingface.co/microsoft/Phi-4-reasoning
+- Tech report: https://arxiv.org/abs/2504.21318
+- Key facts: total_params=14B, active=14B, context=32768, released=2025-04-30, license=MIT
+- Notes: SFT + RL-tuned variant of Phi-4 for explicit reasoning. Outputs chain-of-thought block + summarization block. cap_reasoning=true. Same 14B dense architecture as Phi-4 base. Context extended to 32K.
+- release_url = HF card (primary); supporting_url = arxiv technical report (architecture details, reasoning training)
+
+## Phi-4-mini-reasoning
+- Source: https://huggingface.co/microsoft/Phi-4-mini-reasoning
+- Tech report: https://arxiv.org/abs/2504.21233
+- Key facts: total_params=3.8B, active=3.8B, context=128000, released=2025-04-30, license=MIT
+- Notes: Fine-tuned from Phi-4-mini with synthetic teacher data distilled from DeepSeek-R1. Math-focused reasoning. Same Phi-4-mini architecture. cap_reasoning=true.
+- release_url = HF card; supporting_url = arxiv paper
+
+## Phi-4-mini-flash-reasoning
+- Source: https://azure.microsoft.com/en-us/blog/reasoning-reimagined-introducing-phi-4-mini-flash-reasoning/
+- HF: https://huggingface.co/microsoft/Phi-4-mini-flash-reasoning
+- Key facts: total_params=3.8B, active=3.8B, context=65536 (64K), released=2025-07-09, license=MIT, architecture=hybrid (SambaY: Mamba SSM + sliding window attention + cross-decoder with GMU)
+- Notes: Novel SambaY hybrid architecture. Described as decoder-hybrid-decoder. NOT a pure transformer — combines Mamba SSM blocks, sliding-window attention, and Gated Memory Unit cross-layers. 10x throughput vs Phi-4-mini. Reasoning model (cap_reasoning=true). architecture_type=hybrid per schema.
+- release_url = Azure blog (primary, architecture + release date + 10x throughput claim); supporting_url = HF card (params, context, license)
+# pre_llm research notes
+
+## BERT-Large (uncased)
+- Source: https://arxiv.org/abs/1810.04805
+- Supporting: https://huggingface.co/google-bert/bert-large-uncased (supports total_params=336M and context_window=512 and Apache-2.0 license)
+- Key facts: params=340M (paper headline; HF card says 336M including embeddings — close enough; we'll use 340M as the widely-cited figure from the paper), active=340M (dense encoder-only), context=512, released=2018-10-11 (arXiv v1 date)
+- Notes: Encoder-only MLM+NSP pretraining. Code + weights released at google-research/bert under Apache 2.0. Defined the modern pretraining+fine-tuning paradigm — frontier_at_release=true for the pretraining era, and frontier_open_at_release=true. Marked cap_text only (no other modalities; BERT was not generative in the LLM sense, but cap_text=true is the schema baseline per PLAN.md).
+
+## T5-11B
+- Source: https://arxiv.org/abs/1910.10683
+- Supporting: https://huggingface.co/google-t5/t5-11b (supports params=11B flagship, Apache-2.0 license, encoder-decoder)
+- Key facts: params=11B, active=11B (dense encoder-decoder), context=512 (standard T5 pretraining sequence length, confirmed widely), released=2019-10-23 (arXiv v1 date)
+- Notes: Text-to-Text Transfer Transformer, unified text-to-text formulation. The 11B flagship was the largest encoder-decoder open-weights model of its era. frontier_at_release=true (largest encoder-decoder, SOTA on many GLUE/SuperGLUE tasks) and frontier_open_at_release=true.
+
+## Megatron-LM 8.3B
+- Source: https://arxiv.org/abs/1909.08053
+- Supporting: https://ar5iv.labs.arxiv.org/html/1909.08053 (supports context_window=1024 and code-release statement)
+- Key facts: params=8.3B, active=8.3B (dense decoder-only GPT-2 style), context=1024, released=2019-09-17 (arXiv v1 date)
+- Notes: NVIDIA's largest dense autoregressive LM at the time. Code + training pipeline open-sourced at github.com/NVIDIA/Megatron-LM (open_weights=true — scripts + checkpoints released). Briefly the largest dense autoregressive LM from Sep 2019 to Feb 2020, so frontier_at_release=true and frontier_open_at_release=true.
+
+## Turing-NLG 17B
+- Source: https://www.microsoft.com/en-us/research/blog/turing-nlg-a-17-billion-parameter-language-model-by-microsoft/
+- Key facts: params=17B (official, 78 layers, hidden 4256, 28 heads), active=17B (dense), context=1024, released=2020-02-13 (blog post date)
+- Notes: Closed-weights — Microsoft released only a private demo to select academic users. Largest announced dense LM in Feb 2020 (briefly, superseded by GPT-3 in May/Jun 2020). frontier_at_release=true, frontier_open_at_release=false (closed). No supporting_url needed — primary Microsoft Research blog states all fields (params, architecture, context window via "sequences of 1024 tokens", release status).
+
+# deepseek_v4 research notes
+
+## DeepSeek-V4-Pro
+- Source (release_url): https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro (official lab HF model card)
+- Source (supporting_url): https://api-docs.deepseek.com/guides/function_calling (confirms function/tool calling support for V4 including in thinking mode)
+- Key facts: total_params=1.6T (1,600,000,000,000), active_params=49B (49,000,000,000), context=1,000,000 tokens, released=2026-04-24, architecture=MoE, license=MIT (open_weights=true), pretraining tokens=32T+
+- Architecture details: Hybrid Attention (CSA + HCA), Manifold-Constrained Hyper-Connections (mHC), Muon optimizer. Three reasoning modes: Non-think / Think High / Think Max. FP4+FP8 mixed precision.
+- Capabilities: cap_reasoning=true (native thinking modes with reasoning_content in chat template, cites bibtex as "Towards Highly Efficient Million-Token Context Intelligence"). cap_tool_use=true (function calling supported in both thinking and non-thinking per api-docs). cap_vision/audio/video=false (no multimodal encoder mentioned on model card). cap_code_specialized=false (general-purpose flagship; code benchmarks strong but not code-specialized line like DeepSeek-Coder).
+- Frontier flags:
+  - frontier_at_release=false. HF card benchmarks show V4-Pro beats frontier models on LiveCodeBench (93.5) and Codeforces (3206) but loses on MMLU-Pro (87.5 vs Gemini 91.0), SimpleQA-Verified (57.9 vs Gemini 75.6), IMOAnswerBench (89.8 vs GPT-5.4 91.4), and MRCR 1M (83.5 vs Opus 92.9). Simon Willison quotes DeepSeek's own framing "trails SOTA by 3-6 months". Conservative call: frontier_at_release=false — "near frontier" is not "at frontier".
+  - frontier_open_at_release=true. Largest and most capable open-weights model at release date; 1.6T total / 49B active under MIT license, beats all rival open models on maths and coding per HF card.
+- Notes: V4-Flash (284B total / 13B active) released same day as smaller sibling — omitted per single-row scope from the orchestrator. V4-Pro-Base variant also published (pretrained-only checkpoint) — this row captures the instruction-tuned V4-Pro flagship. supporting_url = api-docs.deepseek.com function_calling guide, supports cap_tool_use flag (the HF card does not itself describe the function-calling API surface).
+- check-urls caveat: the api-docs.deepseek.com domain returns a TLS cert-name error in this environment because the network path resolves the host to a Whalebone content-filter proxy (subject=CN=hos.whalebone.io) rather than DeepSeek's real origin. This is an environment-level TLS intercept, analogous to the openai.com Cloudflare 403 bot-block pattern called out in CLAUDE.md — do not rewrite the URL. The URL is the canonical documentation path and appears as a live hit in multiple web-search results. The HF model card (release_url) passes check-urls at 200.

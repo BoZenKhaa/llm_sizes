@@ -29,8 +29,9 @@ Multi-row output auto-prefixes each row with `=== line N ===`.
 
 ```bash
 uv run check-urls https://foo https://bar
-uv run check-urls --from-csv 52-78           # pulls release_url+supporting_url
+uv run check-urls --from-csv 52-78                        # main CSV
 uv run check-urls --from-csv --field release_url 52-78
+uv run check-urls --from-csv --csv labs/qwen.csv 2-20     # per-lab CSV
 ```
 
 Browser user agent and redirect-following by default. Exit 1 if any URL
@@ -45,19 +46,63 @@ is not 2xx/3xx. Useful for:
   to Cloudflare-block automated fetches; do not rewrite those URLs on
   the basis of a 403 alone — cross-check with `WebSearch`.
 
-## Two-agent workflow per lab
+## Per-lab working files + merge workflow
 
-Documented in `STATUS.md` step-list. Shorthand:
+Each lab gets its own working CSV + notes file under `labs/`. This lets
+multiple researchers run in parallel without racing on a shared file.
+Merging into the main CSV + `RESEARCH_NOTES.md` happens only after the
+verifier has cleared the lab.
 
-1. `researcher` subagent scoped to one lab → appends rows.
-2. `verifier` subagent(s) in parallel batches of ~10 rows → report
-   FAIL / PARTIAL / PASS against the cited URLs.
-3. If hard FAILs exist, `researcher` fixup pass with the specific list.
-4. Orchestrator spot-checks anything unfamiliar, especially rows where
-   `param_source_note` asserts facts not in either URL column (the
-   Mythos + GPT-5.5 failure mode — numbers that read plausible but
-   live only in the note).
-5. Update `STATUS.md` completion notes and commit.
+File layout:
+
+- `labs/<lab>.csv` — pre-populated with the main CSV header line
+  only; researcher appends rows here.
+- `labs/<lab>.notes.md` — per-lab research notes (same format as
+  the main `RESEARCH_NOTES.md`).
+- `labs/.header` — stashed copy of the main CSV header, used to
+  initialize new lab files.
+
+Orchestrator helpers (plain shell — no script needed):
+
+```bash
+# Initialize a new lab file pair
+LAB=qwen
+head -1 llm_sizes.csv > labs/$LAB.csv
+printf '# %s research notes\n\n' "$LAB" > labs/$LAB.notes.md
+
+# Merge a verified lab into the main files
+tail -n +2 labs/$LAB.csv >> llm_sizes.csv
+cat labs/$LAB.notes.md >> RESEARCH_NOTES.md
+```
+
+Step-by-step workflow per lab:
+
+1. **Orchestrator** creates `labs/<lab>.csv` (header only) and
+   `labs/<lab>.notes.md` (empty / heading only).
+2. **`researcher` subagent** is invoked with the `labs/<lab>.*` paths,
+   appends rows + notes there. Never touches the main files.
+3. **`verifier` subagent(s)** in parallel batches run against the lab
+   CSV via `uv run csv-row --csv labs/<lab>.csv <range>`. The verifier
+   first diff-checks the lab CSV header against the main CSV header
+   (schema conformance) before fact-checking rows.
+4. If hard FAILs exist, `researcher` fixup pass on the same lab file
+   with the specific list.
+5. **Orchestrator** spot-checks anything unfamiliar, especially rows
+   where `param_source_note` asserts facts not in either URL column
+   (the Mythos + GPT-5.5 failure mode — numbers that read plausible
+   but live only in the note).
+6. **Orchestrator** merges the lab file into the main CSV + notes
+   file (shell snippet above). Keep the lab file around as provenance
+   — don't delete it after merge.
+7. Update `STATUS.md` completion notes and commit.
+
+Parallelism rules:
+
+- Researchers write only to their own `labs/<lab>.*` files, so any
+  number of researchers can run concurrently.
+- Verifiers are read-only and can run concurrently with each other
+  and with researchers (on different files).
+- Merges are orchestrator-only and serialized — do one lab at a time.
 
 ## Source-substantiation rule
 
