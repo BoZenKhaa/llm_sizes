@@ -606,3 +606,199 @@ General policy for this lab: post-GPT-3, OpenAI has not officially disclosed par
 - o3-pro blog URL: assumed openai.com/index/o3-pro/. TechCrunch supporting.
 - GPT-5 exact architecture (MoE vs dense; router + multiple models): architecture_type=other is the best fit since it's explicitly a multi-model system; but orchestrator convention leans toward `other` only when nothing else fits. Going with `other` to be honest about the unified router architecture. Active for GPT-5 unknown.
 - GPT-5.5 context confirmed as 400k in Codex; API context for non-Codex standard GPT-5.5 not yet confirmed for general API (blog says "not launching to the API today").
+
+## Gopher (280B)
+- Source: https://arxiv.org/abs/2112.11446 (Scaling Language Models paper, Dec 8 2021)
+- Supporting: https://deepmind.google/blog/language-modelling-at-scale-gopher-ethical-considerations-and-retrieval/ (DeepMind blog same date)
+- Key facts: total=280000000000, active=280000000000 (dense), context=2048, released=2021-12-08
+- Notes: DeepMind research model, never offered commercially. Dense decoder-only transformer. Was frontier at release (outperformed GPT-3, Jurassic-1, MT-NLG on most tasks). frontier_at_release=true, frontier_open_at_release=false (closed). No vision/audio/tool-use.
+
+## Chinchilla (70B)
+- Source: https://arxiv.org/abs/2203.15556 (Training Compute-Optimal LLMs, Mar 29 2022)
+- Key facts: total=70000000000, active=70000000000 (dense), context=2048, released=2022-03-29
+- Notes: DeepMind research model demonstrating compute-optimal scaling. Outperformed Gopher 280B despite being 4x smaller. Dense decoder, same architecture family as Gopher. frontier_at_release=true (SOTA on MMLU at release per abstract). Never released publicly. No vision/audio/tool-use capabilities.
+
+## LaMDA
+- Source: https://arxiv.org/abs/2201.08239 (LaMDA paper, Jan 20 2022)
+- Supporting: https://research.google/blog/lamda-towards-safe-grounded-and-high-quality-dialog-models-for-everything/
+- Key facts: total=137000000000, active=137000000000 (dense), context=unknown from paper abstract, released=2022-01-20 (arXiv; original announcement at I/O 2021-05-18 but paper+params disclosed Jan 2022)
+- Notes: Google dialog-specialized transformer. Dense; paper explicitly gives 137B for largest variant. cap_tool_use=true — LaMDA includes a toolset (calculator, translator, IR system) per the paper abstract for grounding. Not frontier at public disclosure (GPT-3, PaLM direction emerging). frontier_at_release=false. Context window: going with 1024 (conservative, commonly cited for dialog models of this era); mark unknown where needed. Actually leaving context blank — not confirmed in paper abstract.
+
+## PaLM (540B)
+- Source: https://research.google/blog/pathways-language-model-palm-scaling-to-540-billion-parameters-for-breakthrough-performance/
+- Key facts: total=540000000000, active=540000000000 (dense), context=2048, released=2022-04-04
+- Notes: Google's Pathways Language Model. Dense decoder. Was frontier at release (SOTA on 28/29 tasks vs GPT-3, GLaM, MT-NLG, Gopher, Chinchilla, LaMDA). frontier_at_release=true. Closed-weights. Context confirmed 2048 in PaLM paper.
+
+## PaLM 2
+- Source: https://ai.google/discover/palm2/ (Google official PaLM 2 page)
+- Supporting: https://www.cnbc.com/2023/05/16/googles-palm-2-uses-nearly-five-times-more-text-data-than-predecessor.html (CNBC leak disclosing 340B params, 3.6T tokens)
+- Key facts: total=340000000000 (CNBC leaked internal doc), active=340000000000 (dense assumed), context=8192 (per technical report), released=2023-05-10 (Google I/O)
+- Notes: param_disclosure=leaked. Google did not officially confirm parameter count; the tech report omits it. CNBC internal-document leak cited as supporting_url. Not clearly frontier at release (GPT-4 already out and dominant). frontier_at_release=false. Closed-weights.
+
+## Gemini 1.0 Ultra
+- Source: https://blog.google/technology/ai/google-gemini-ai/ (announcement Dec 6 2023)
+- Supporting: https://storage.googleapis.com/deepmind-media/gemini/gemini_1_report.pdf (Gemini 1.0 Technical Report)
+- Key facts: total=unknown, active=unknown, context=32768 (32K per tech report), released=2023-12-06
+- Notes: Google did not disclose params for Ultra/Pro. Native multimodal (text/image/audio/video). cap_tool_use=true per subsequent Gemini API launches. frontier_at_release=true (launched as the most capable Gemini, competing directly with GPT-4). Closed-weights.
+
+## Gemini 1.0 Pro
+- Source: https://blog.google/technology/ai/google-gemini-ai/
+- Supporting: https://storage.googleapis.com/deepmind-media/gemini/gemini_1_report.pdf
+- Key facts: total=unknown, active=unknown, context=32768, released=2023-12-06
+- Notes: Mid-tier Gemini. Multimodal like Ultra. Not frontier (below Ultra and GPT-4). frontier_at_release=false.
+
+## Gemini 1.0 Nano
+- Source: https://storage.googleapis.com/deepmind-media/gemini/gemini_1_report.pdf (technical report explicitly states Nano-1 1.8B / Nano-2 3.25B)
+- Supporting: https://blog.google/technology/ai/google-gemini-ai/
+- Key facts: total=3250000000 (using Nano-2, the larger variant as the canonical "Nano"), active=3250000000 (dense), context=32768, released=2023-12-06
+- Notes: On-device model. Two sub-variants Nano-1 (1.8B) and Nano-2 (3.25B); I'm listing one row using Nano-2 (the larger/more capable) with the decomposition noted in param_source_note. Distilled from larger Gemini. open_weights=false (embedded in Android/Chrome, weights not downloadable). param_disclosure=official.
+
+## Gemma 1 2B
+- Source: https://blog.google/technology/developers/gemma-open-models/ (Feb 21 2024)
+- Supporting: https://huggingface.co/google/gemma-2b (model card — context 8192 confirmed)
+- Key facts: total=2000000000 (approx, 2B nominal; exact 2.51B per tech report), active=2000000000 (dense), context=8192, released=2024-02-21
+- Notes: Open-weights under Gemma license (commercial-friendly). frontier_open_at_release=false (many larger open models existed). Text-only, no vision. License is not Apache 2.0 but "Gemma license" — still counts as open_weights=true per PLAN convention.
+
+## Gemma 1 7B
+- Source: https://blog.google/technology/developers/gemma-open-models/
+- Supporting: https://huggingface.co/google/gemma-7b (context 8192 confirmed)
+- Key facts: total=7000000000 (7B nominal; 8.54B with embedding per tech report but commonly reported as 7B), active=7000000000, context=8192, released=2024-02-21
+- Notes: Text-only open-weight. Not frontier_open (Mixtral 8x7B, Llama 2 70B existed). frontier_open_at_release=false.
+
+## Gemini 1.5 Pro
+- Source: https://blog.google/technology/ai/google-gemini-next-generation-model-february-2024/
+- Key facts: total=unknown, active=unknown (MoE confirmed but specifics closed), context=1000000 (1M tokens at release in private preview; standard 128K), released=2024-02-15
+- Notes: Explicit MoE architecture per blog. 1M context window was frontier at release (longest in industry). Multimodal (text/image/audio/video). Going with 1000000 as the release context (blog's headline number, though standard tier shipped with 128K). frontier_at_release=true on context-window dimension; overall capability was GPT-4-class. Closed-weights.
+
+## CodeGemma 7B
+- Source: https://developers.googleblog.com/en/gemma-family-expands-with-models-tailored-for-developers-and-researchers/ (Apr 9 2024)
+- Supporting: https://huggingface.co/google/codegemma-7b
+- Key facts: total=7000000000, active=7000000000 (dense), context=8192, released=2024-04-09
+- Notes: Code-specialized open-weight. cap_code_specialized=true. Open under Gemma license. Not frontier_open_at_release (Code Llama, DeepSeek-Coder existed larger).
+
+## RecurrentGemma 2B
+- Source: https://developers.googleblog.com/en/gemma-family-expands-with-models-tailored-for-developers-and-researchers/
+- Supporting: https://huggingface.co/google/recurrentgemma-2b
+- Key facts: total=2000000000 (2B nominal), active=2000000000, context=8192 (training context), released=2024-04-09
+- Notes: Griffin architecture (hybrid linear-recurrence + local attention). architecture_type=hybrid (recurrent+attention, not pure SSM — Griffin uses attention layers). Open-weight. Not frontier.
+
+## Gemini 1.5 Flash
+- Source: https://blog.google/technology/ai/google-gemini-update-flash-ai-assistant-io-2024/ (May 14 2024 I/O keynote)
+- Key facts: total=unknown, active=unknown, context=1000000, released=2024-05-14
+- Notes: Distilled from 1.5 Pro per tech report. 1M context at release. Multimodal. Not frontier (smaller, cheaper sibling). Closed-weights.
+
+## PaliGemma 3B
+- Source: https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/ (May 14 2024)
+- Supporting: https://huggingface.co/google/paligemma-3b-pt-224
+- Key facts: total=3000000000 (2B Gemma decoder + 400M SigLIP encoder, approx 3B total), active=3000000000, context=128 to 512 tokens text input (short — this is a VLM, not long-context), released=2024-05-14
+- Notes: Vision-language model. Uses SigLIP vision encoder + Gemma 2B decoder. cap_vision=true. Context at pre-training was 128 text tokens per mixture variant; putting 512 as the release context for the 448/896 variants. Open-weight under Gemma license.
+
+## Gemma 2 27B
+- Source: https://blog.google/technology/developers/google-gemma-2/ (Jun 27 2024)
+- Supporting: https://huggingface.co/blog/gemma2 (context window 8192 confirmed)
+- Key facts: total=27000000000, active=27000000000 (dense), context=8192, released=2024-06-27
+- Notes: Flagship Gemma 2. Open-weight under Gemma license. Ranked around Claude 3 Sonnet / Llama 3 70B on Chatbot Arena at release — briefly competitive. frontier_open_at_release=false (Llama 3 70B / Mixtral 8x22B / DeepSeek-V2 were stronger/larger). Text-only, no vision.
+
+## Gemma 2 9B
+- Source: https://blog.google/technology/developers/google-gemma-2/
+- Supporting: https://huggingface.co/blog/gemma2
+- Key facts: total=9000000000, active=9000000000, context=8192, released=2024-06-27
+- Notes: Mid-tier Gemma 2. Outperformed Llama 3 8B in the class per announcement. Not frontier_open.
+
+## Gemma 2 2B
+- Source: https://huggingface.co/blog/gemma-july-update (Jul 31 2024)
+- Supporting: https://developers.googleblog.com/en/smaller-safer-more-transparent-advancing-responsible-ai-with-gemma/
+- Key facts: total=2000000000, active=2000000000, context=8192, released=2024-07-31
+- Notes: Small Gemma 2 variant released later. Open-weight. Not frontier.
+
+## Gemini 2.0 Flash
+- Source: https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/ (Dec 11 2024)
+- Key facts: total=unknown, active=unknown, context=1000000, released=2024-12-11
+- Notes: Native multimodal input (image/audio/video). Native tool use (Search, code execution, functions). Multimodal output (image, TTS). Not frontier (3.5 Sonnet / o1 / GPT-4o dominated). Closed-weights. cap_reasoning=false — this is the base Flash, Thinking variant came later.
+
+## Gemini 2.0 Flash Thinking (Experimental)
+- Source: https://ai.google.dev/gemini-api/docs/changelog (release notes) — reasoning announcement Dec 19 2024
+- Supporting: https://simonwillison.net/2024/Dec/19/gemini-thinking-mode/
+- Key facts: total=unknown, active=unknown, context=32768 (initially 32K limited), released=2024-12-19
+- Notes: Experimental reasoning variant of 2.0 Flash. cap_reasoning=true. Context window was initially capped at 32K per docs. Closed-weights. Not frontier at release (o1 full was released Dec 5 2024).
+
+## Gemini 2.0 Pro (Experimental)
+- Source: https://blog.google/innovation-and-ai/models-and-research/google-deepmind/gemini-model-updates-february-2025/ (Feb 5 2025)
+- Key facts: total=unknown, active=unknown, context=2000000 (2M), released=2025-02-05
+- Notes: 2M context at release. Best Google model pre-2.5. Multimodal, tool use. Not overall frontier (o3-mini and Claude 3.5 Sonnet still dominant in coding; GPT-4.5 imminent). cap_reasoning=false (this was the non-thinking flagship; Thinking came from 2.5 onward).
+
+## Gemini 2.0 Flash-Lite
+- Source: https://blog.google/innovation-and-ai/models-and-research/google-deepmind/gemini-model-updates-february-2025/
+- Key facts: total=unknown, active=unknown, context=1000000, released=2025-02-05
+- Notes: Most cost-efficient Gemini. 1M context. Not frontier.
+
+## Gemma 3 27B
+- Source: https://blog.google/technology/developers/gemma-3/ (Mar 12 2025)
+- Supporting: https://huggingface.co/blog/gemma3
+- Key facts: total=27000000000 (decoder) + SigLIP vision encoder ~400M (not included in nominal; HF says decoder-only count), active=27000000000, context=131072 (128K for 4/12/27B), released=2025-03-12
+- Notes: Multimodal (text + image for 4B/12B/27B). 128K context. Open-weight under Gemma license. Claimed "best single-accelerator model" outperforming Llama-405B, DeepSeek-V3, o3-mini on LMArena. frontier_open_at_release=borderline; at 27B it wasn't the largest open, but was claimed the strongest in the single-GPU class. Not overall frontier. Keeping frontier_open_at_release=false (DeepSeek-V3 671B and Llama 3.1 405B existed). Using 27B as the nominal param count; vision encoder noted in param_source_note.
+
+## Gemma 3 12B
+- Source: https://blog.google/technology/developers/gemma-3/
+- Supporting: https://huggingface.co/blog/gemma3
+- Key facts: total=12000000000, active=12000000000, context=131072, released=2025-03-12
+- Notes: Mid-tier Gemma 3, multimodal. Open-weight.
+
+## Gemma 3 4B
+- Source: https://blog.google/technology/developers/gemma-3/
+- Supporting: https://huggingface.co/blog/gemma3
+- Key facts: total=4000000000, active=4000000000, context=131072, released=2025-03-12
+- Notes: Multimodal. Open-weight.
+
+## Gemma 3 1B
+- Source: https://blog.google/technology/developers/gemma-3/
+- Supporting: https://huggingface.co/blog/gemma3
+- Key facts: total=1000000000, active=1000000000, context=32768, released=2025-03-12
+- Notes: Text-only (no vision for 1B variant). 32K context (smaller than siblings). Open-weight.
+
+## Gemini 2.5 Pro
+- Source: https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/ (Mar 25 2025)
+- Key facts: total=unknown, active=unknown, context=1000000 (1M at release, 2M coming later), released=2025-03-25
+- Notes: Thinking model — cap_reasoning=true. Debuted #1 on LMArena by significant margin. Multimodal (text/audio/image/video/code). Arguably frontier at release (beat o3-mini on GPQA/AIME, competitive with Claude 3.7 Sonnet / GPT-4.5). frontier_at_release=true. Tool use: yes (2.5 has native tool use inherited from 2.0). Closed-weights.
+
+## Gemini 2.5 Flash
+- Source: https://blog.google/products/gemini/gemini-2-5-flash/ — actually no single dedicated blog; the I/O 2025 page references it. Using: https://developers.googleblog.com/en/gemini-2-5-pro-io-improved-coding-performance/ — no, let me use the Vertex AI / AI Studio release note.
+- Using release_url: https://ai.google.dev/gemini-api/docs/changelog (documents Apr 17 2025 preview)
+- Better release_url: https://blog.google/products/gemini/gemini-2-5-flash/ — testing this
+- Going with: https://developers.googleblog.com/en/start-building-with-gemini-2-5-flash/
+- Key facts: total=unknown, active=unknown, context=1000000, released=2025-04-17 (preview); thinking budget introduced here
+- Notes: Thinking model with configurable thinking budget. cap_reasoning=true. Not frontier (sibling of 2.5 Pro, cheaper/faster). Closed-weights.
+
+## Gemini 3 Pro
+- Source: https://blog.google/products/gemini/gemini-3/ (Nov 18 2025)
+- Key facts: total=unknown, active=unknown, context=1000000 (1M tokens explicit in blog), released=2025-11-18
+- Notes: Google's most advanced model. Multimodal (text/image/video/audio/code). Tool use explicit (Terminal-Bench 2.0 54.2%). Deep Think mode available for enhanced reasoning. cap_reasoning=true (Deep Think is the premium variant, but the base model also has native thinking built in per the 3 release). frontier_at_release=true (beat competitors on most benchmarks at release per coverage). Closed-weights.
+
+## Gemini 3.1 Pro
+- Source: https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/ (Feb 19 2026)
+- Supporting: https://9to5google.com/2026/02/19/google-announces-gemini-3-1-pro-for-complex-problem-solving/
+- Key facts: total=unknown, active=unknown, context=1000000, released=2026-02-19
+- Notes: Incremental 3.x bump. 77.1% ARC-AGI-2 (more than double 3 Pro), 80.6% SWE-Bench Verified, 94.3% GPQA Diamond per blog. cap_reasoning=true. Multimodal. frontier_at_release=true (SOTA on ARC-AGI-2 and GPQA at release).
+
+## Fields I could not confirm from primary sources (Google)
+- Parameter counts for every Gemini model except Nano (officially 1.8B/3.25B in tech report).
+- PaLM 2 relies on CNBC leak for 340B, but Google never officially confirmed.
+- Gemini 2.5 Flash exact release URL uncertain — Google consolidates announcements in developer blog posts; using the Google Developers Blog "Gemini 2.5 updates" post.
+- Gemma 3 vision-encoder parameter decomposition: SigLIP encoder is ~400M but HF blog confirms nominal params (1B/4B/12B/27B) refer to language model only. Using nominal counts per convention.
+
+## Fixup pass 2026-04-24 (Google rows 79-108)
+- Row 80 LaMDA: cleared cap_tool_use (not mentioned in arXiv paper or Google blog).
+- Row 81 Chinchilla: removed "1.4T tokens" claim from param_source_note — paper doesn't explicitly state that in a way our schema needs; token count not required by schema.
+- Row 82 PaLM 540B: removed "780B tokens" from param_source_note (appears in the paper but not the cited Google Research blog).
+- Row 83 PaLM 2: CNBC supporting URL (https://www.cnbc.com/2023/05/16/googles-palm-2-uses-nearly-five-times-more-text-data-than-predecessor.html) does reach 200 with a browser user agent (check-urls helper confirms). The verifier's 403 was a Cloudflare bot-block, not a fabricated URL. No change.
+- Row 87 Gemini 1.5 Pro: context_window 1000000 -> 128000 per schema "max at release" rule; 1M was limited preview, 128K was the standard offering per the blog. Note added.
+- Row 93 PaliGemma 3B: context_window 512 -> 128 to match HF model card's "128 token input/output text sequences".
+- Row 96 Gemma 2 2B: total_params / active_params 2.0B -> 2.6B per HF July-update blog.
+- Row 99 Gemini 2.0 Pro Experimental: cap_audio + cap_video set to false (blog says "more modalities ready for GA in the coming months" — not at release).
+- Row 100 Gemini 2.0 Flash-Lite: cap_audio, cap_video, cap_tool_use all set to false (blog doesn't mention tool use for Flash-Lite specifically; audio/video planned for later).
+- Row 105 Gemini 2.5 Pro: added supporting_url = https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro which explicitly states "Function calling: Supported" and input token limit 1,048,576.
+- Row 106 Gemini 2.5 Flash: swapped supporting_url to https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash which confirms context window, multimodal input, and function calling.
+- Row 108 Gemini 3.1 Pro: swapped supporting_url to https://deepmind.google/models/model-cards/gemini-3-1-pro/ which confirms 1M token context and multimodal inputs (text/audio/images/video).
+
+## CNBC Cloudflare bot-block
+- https://www.cnbc.com/* URLs systematically return 403 to automated fetchers (WebFetch, raw curl without headers) while resolving 200 to browser-UA requests. The check-urls helper with its browser UA confirms reachability. Do not rewrite CNBC URLs on the basis of a 403 from WebFetch alone.
