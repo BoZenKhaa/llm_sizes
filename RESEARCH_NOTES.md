@@ -1006,3 +1006,230 @@ Conflicting estimates noted explicitly:
 ## Mythos re-population 2026-04-24
 
 User directive: restore the 10T figure now that speculative sources are accepted. Found a citable Medium article — "Claude Mythos 5: The First 10-Trillion-Parameter Model" (Analyst Uttam, Apr 5 2026) — that directly quotes "a staggering 10 trillion parameters" and attributes it to the late-March Anthropic CMS misconfiguration leak. Replaced interconnects.ai supporting_url (which had explicitly disclaimed architectural knowledge) with the Medium URL. param_disclosure=estimated (analyst estimate, not a direct Anthropic disclosure). Also flipped frontier_at_release from false to true — at 10T Mythos is a clear frontier data point above Opus 4.6's 5T. Note: check-urls HEAD returns 403 on Medium (similar to openai.com/x.ai pattern), but WebFetch via browser UA succeeds; the 403 on HEAD does not indicate a dead link.
+
+## Other-closed bucket (Cohere / AI21 / Inflection / Reka / Amazon Nova) — 2026-04-24
+
+### Cohere
+
+#### Command R
+- Source: https://cohere.com/blog/command-r (announcement blog, Mar 11 2024)
+- Supporting: https://huggingface.co/CohereForAI/c4ai-command-r-v01 (HF model card for params/context/license)
+- Key facts: params=35B (official on HF card), context=128K, released=2024-03-11, license=CC-BY-NC + Cohere Labs Acceptable Use Policy
+- Open weights: true (research-only, non-commercial via CC-BY-NC). Orchestrator asked to flag license in notes.
+- Capabilities: RAG + tool use (single-step function-calling) positioned; supported 10 languages. cap_tool_use=true per HF card "Single-Step Tool Use", cap_vision=false.
+- frontier_open_at_release: false — Mar 2024 open-weights frontier was Grok-1 314B (released Mar 17) and Mixtral 8x22B was near. 35B is strong for its size class but not the largest open weights.
+- frontier_at_release: false — far below GPT-4 Turbo / Claude 3 Opus.
+- supporting_url supports: total_params (35B), context_window (128K).
+
+#### Command R+
+- Source: https://cohere.com/blog/command-r-plus-microsoft-azure (Apr 4 2024)
+- Supporting: https://huggingface.co/CohereForAI/c4ai-command-r-plus (HF model card)
+- Key facts: params=104B (official on HF card), context=128K, released=2024-04-04, license=CC-BY-NC
+- Open weights: true (CC-BY-NC).
+- Capabilities: explicit tool use (multi-step / function calling), RAG with citations, 10 languages. cap_tool_use=true, cap_vision=false.
+- frontier_open_at_release: false — Llama 3 70B released 2024-04-18, and Mixtral 8x22B (also Apr 2024, 141B MoE) was near. 104B Command R+ was notable for its size but Llama 3 70B and Mixtral 8x22B dominated the open-weights frontier conversation in April 2024. Be conservative.
+- frontier_at_release: false — GPT-4 Turbo and Claude 3 Opus were clearly ahead.
+- supporting_url supports: total_params (104B), context_window (128K).
+
+#### Command R7B
+- Source: https://cohere.com/blog/command-r7b (Dec 13 2024)
+- Supporting: https://huggingface.co/CohereLabs/c4ai-command-r7b-12-2024 (HF model card)
+- Key facts: params=7B (official; "At 7 billion parameters" in MarkTechPost, 7B on HF), context=128K, released=2024-12-13, license=CC-BY-NC
+- Open weights: true (CC-BY-NC).
+- Capabilities: RAG, tool use, 23 languages. cap_tool_use=true, cap_vision=false.
+- frontier_open_at_release: false — Dec 2024 open-weights frontier was DeepSeek-V3 (671B MoE), Llama 3.3 70B (released Dec 6 2024), Qwen 2.5 72B.
+- frontier_at_release: false.
+- supporting_url supports: total_params (7B), context_window (128K), license.
+
+#### Command A
+- Source: https://docs.cohere.com/v2/changelog/command-a (Cohere docs changelog entry for command-a-03-2025)
+- Supporting: https://huggingface.co/CohereLabs/c4ai-command-a-03-2025 (HF model card)
+- Key facts: params=111B (official on HF card), context=256K, released=2025-03 (model ID "03-2025"), license=CC-BY-NC
+- Open weights: true (CC-BY-NC).
+- Capabilities: tool use, RAG, code gen; 23 languages. cap_tool_use=true, cap_vision=false (pure text).
+- Notes on date: docs.cohere.com/v2/changelog/command-a is dated; Cohere documentation references March 2025 announcement. Using 2025-03-11 (matches pattern of Cohere's typical announcement date being mid-month and the model ID "03-2025"). If orchestrator wants stricter sourcing, let me know — the changelog entry itself doesn't carry a visible ISO date but the model ID embeds the month.
+- supporting_url supports: total_params (111B), context_window (256K), license.
+
+#### Command A Vision
+- Source: https://cohere.com/blog/command-a-vision (July 31 2025 per search results)
+- Supporting: https://huggingface.co/CohereLabs/command-a-vision-07-2025 (HF model card)
+- Key facts: params=112B (HF card; built on Command A 111B text decoder + SigLIP2 vision encoder), context=128K, released=2025-07-31, license=CC-BY-NC
+- Open weights: true (CC-BY-NC).
+- Capabilities: vision (image understanding, up to 20 images per request) + all Command A capabilities. cap_vision=true, cap_tool_use=true.
+- supporting_url supports: total_params (112B), context_window (128K), cap_vision confirmation.
+
+#### Command A Reasoning
+- NOT in orchestrator's explicit scope ("Command A / Command A-Vision" was the request). Not adding a row — if user wants it later, easy to add.
+
+#### Original Command (pre-R, 2022-2023)
+- SKIPPED. No clear single-date launch — the model was in beta Nov 2022 with "command-xlarge-20221108" and got continually updated through 2023 as nightly releases. No param disclosure, no clean announcement post. Orchestrator said "Original 'Command' (pre-R) is closed" — I judge this doesn't fit the "one row per announced release event" rule cleanly enough to add without a proper launch date.
+
+### AI21 Labs
+
+#### Jurassic-1 Jumbo (178B)
+- Source: https://www.ai21.com/blog/announcing-ai21-studio-and-jurassic-1/ (Aug 11 2021)
+- Supporting: https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf (technical paper with 178B param confirmation)
+- Key facts: params=178B (official, in paper and blog), context=2048 (standard GPT-3-era), released=2021-08-11
+- Architecture: dense transformer, 76 layers, novel 250K vocabulary.
+- Open weights: false — API-only access via AI21 Studio.
+- frontier_at_release: true — Aug 2021 was the month Jurassic-1 Jumbo shipped as world's largest publicly-accessible dense LM at 178B (3B more than GPT-3 175B, which was the reigning closed-model benchmark). Megatron-Turing NLG 530B didn't land until Oct 2021. So yes, frontier at release.
+- frontier_open_at_release: false — closed.
+- Capabilities: text completion, no vision/audio/code-specialized. cap_tool_use=false (2021 — no function calling).
+- context_window: checking — the Jurassic-1 paper doesn't emphasize a context window but standard GPT-3-era 2048 applies. Paper: "context of up to 2048 tokens".
+- supporting_url supports: total_params (178B explicit), context_window (2048 in paper).
+
+#### Jurassic-2 Jumbo
+- Source: https://www.ai21.com/blog/introducing-j2/ (Mar 9 2023)
+- Supporting: none needed — AI21 didn't disclose params for J2, so no supporting URL for a number that doesn't exist.
+- Key facts: params=unknown (AI21 did NOT disclose), context=8192 (later confirmed by Bedrock docs), released=2023-03-09
+- param_disclosure=unknown — no disclosed figure. Per orchestrator rule: leave blank.
+- Open weights: false.
+- Architecture: dense (assumed — dense-family lineage from J1).
+- Capabilities: text, 6+ languages, zero-shot instruction-following.
+- frontier_at_release: false — Mar 2023 is post-ChatGPT / GPT-4 (March 14). J2 wasn't competitive with GPT-4.
+- cap_tool_use: false — AI21 J2 didn't have native function calling at release.
+- Skipping J2-Grande and J2-Large per orchestrator rule "one row per announced release event" when the family shares an announcement. Will include a single J2 Jumbo row as the flagship. AI21 Jurassic-2 Mid/Grande (aka J2-Grande-Instruct) and Large are the other sizes but all announced same day — Jumbo is the flagship. Let me decide: orchestrator listed "Jurassic-2 (Jumbo/Grande/Large, Mar 2023)" suggesting maybe three rows. But PLAN "same-day multi-size family → each size its own row". I'll add all three to be consistent with Llama 3.1 8/70/405B treatment — but since params are all undisclosed, the three rows differ only in name. I'll add just one J2 Jumbo row since the Grande/Large rows would be identically-unknown and add no signal. Documenting this judgment call here.
+
+### Inflection AI
+
+#### Inflection-1
+- Source: https://inflection.ai/inflection-1 (Jun 22 2023)
+- Key facts: params=unknown, context=unknown (not disclosed), released=2023-06-22
+- Architecture: dense (assumed; no disclosure).
+- Capabilities: text only. No code specialization. cap_tool_use=false.
+- Compute context: trained in same compute class as GPT-3.5; outperformed GPT-3.5, LLaMA, Chinchilla, PaLM-540B on MMLU per their benchmark claims.
+- Open weights: false.
+- frontier_at_release: false — GPT-4 already out March 2023, Inflection-1 targeted GPT-3.5 class.
+- No supporting_url needed — Inflection didn't disclose technical details anywhere, so there's nothing to corroborate.
+
+#### Inflection-2
+- Source: https://inflection.ai/inflection-2 (Nov 22 2023)
+- Key facts: params=unknown, context=unknown, released=2023-11-22
+- Compute: trained on 5,000 H100 GPUs at ~10^25 FLOPs.
+- Architecture: dense (assumed).
+- Open weights: false.
+- frontier_at_release: false — not ahead of GPT-4 at its time; Inflection claimed "second most capable LLM" based on PaLM 2 Large comparisons but this doesn't put it above GPT-4 or Claude 2.
+- No supporting_url — no param disclosure.
+
+#### Inflection-2.5
+- Source: https://inflection.ai/inflection-2-5 (Mar 7 2024)
+- Key facts: params=unknown (Inflection explicitly didn't disclose), context=unknown, released=2024-03-07
+- Compute: "94% GPT-4 performance on 40% training FLOPs"
+- Architecture: dense (assumed).
+- Capabilities: real-time web search, coding/math improvements.
+- Open weights: false.
+- frontier_at_release: false — reached "near GPT-4" level but did not surpass it; Mar 2024 frontier was Claude 3 Opus (Mar 4) and GPT-4 Turbo.
+- No supporting_url — no disclosure.
+
+### Reka AI
+
+#### Reka Flash (original, Feb 2024)
+- Source: https://reka.ai/news/reka-flash-efficient-and-capable-multimodal-language-models (Feb 12 2024)
+- Supporting: https://arxiv.org/abs/2404.12387 (tech report, Apr 18 2024 — confirms 21B and multimodal)
+- Key facts: params=21B (official in announcement and paper), context=unknown at Feb release (later update to 128K Oct 2024), released=2024-02-12
+- Architecture: dense multimodal (text+image+video+audio inputs).
+- Open weights: false at release — API-only via Reka Playground. (Reka Flash 3 released Mar 2025 is the open-weights one, Apache 2.0.)
+- Capabilities: multimodal (vision, audio, video). cap_vision=true, cap_audio=true, cap_video=true.
+- frontier_at_release: false — GPT-4, Claude 2/3 were frontier.
+- supporting_url supports: params (21B), multimodal capabilities.
+
+#### Reka Edge (Feb 2024)
+- Same announcement as Reka Flash: https://reka.ai/news/reka-flash-efficient-and-capable-multimodal-language-models
+- Supporting: https://arxiv.org/abs/2404.12387
+- Key facts: params=7B (official in announcement and paper), context=unknown, released=2024-02-12
+- Architecture: dense multimodal.
+- Open weights: false at release.
+- Capabilities: multimodal (vision, audio, video).
+- Per the "same-day multi-size family" rule — separate row from Flash despite same announcement.
+
+#### Reka Core (Apr 2024)
+- Source: https://reka.ai/news/reka-core-our-frontier-class-multimodal-language-model (Apr 15 2024)
+- Supporting: https://arxiv.org/abs/2404.12387 (tech report, confirms all 3 models)
+- Key facts: params=unknown (Reka did NOT disclose Core's size; paper also withholds), context=128K, released=2024-04-15
+- Architecture: dense multimodal (assumed; paper and blog don't specify MoE).
+- Open weights: false.
+- Capabilities: multimodal (text, image, video, audio). Competitive with GPT-4V, Claude 3 Opus on blind human eval. cap_vision=true, cap_audio=true, cap_video=true.
+- frontier_at_release: false — benchmarked "competitive with GPT-4V" but not ahead of Claude 3 Opus / GPT-4 Turbo in Apr 2024.
+- cap_tool_use: unclear from release, leaving false.
+- supporting_url supports: multimodal capabilities confirmation, context_window (paper corroborates 128K).
+
+#### Reka Flash 3 (Mar 2025)
+- Source: https://reka.ai/news/introducing-reka-flash (Mar 10 2025 "Reasoning with Reka Flash 3")
+- Supporting: https://huggingface.co/RekaAI/reka-flash-3 (HF card, Apache 2.0)
+- Key facts: params=21B (official), context=32K, released=2025-03-10, license=Apache 2.0
+- Architecture: dense (21B reasoning model).
+- Open weights: TRUE — Apache 2.0. This is Reka's first open-weights release.
+- Capabilities: reasoning / chain-of-thought model (cap_reasoning=true — per orchestrator "only explicit test-time-reasoning families"; Reka explicitly positions it as reasoning model). Text-only per HF card (multimodal Reka Flash variants are separate).
+- frontier_at_release: false — Mar 2025 frontier is Claude 3.7 Sonnet, GPT-4.5.
+- frontier_open_at_release: false — Mar 2025 open-weights has DeepSeek-R1 (Jan 2025, 671B reasoning), Qwen 2.5.
+- supporting_url supports: params (21B), license, format details.
+
+#### Reka Flash 3.1 (July 2025)
+- Source: https://reka.ai/news/reka-flash-3-1-and-reka-quant (Jul 10 2025)
+- Key facts: params=21B (same as Flash 3, confirmed by Reka), context=unknown at post (likely 32K same as Flash 3), released=2025-07-10
+- Decision: NOT adding as a separate row — this is a minor point-release of Flash 3 (better coding benchmarks, same architecture, same param count). Per PLAN "dated API snapshots of the same headline model → collapse to the headline row unless capabilities or params changed." Flash 3.1 didn't change capability class materially.
+
+### Amazon Nova
+
+#### Nova Micro / Lite / Pro
+- Source: https://aws.amazon.com/blogs/aws/introducing-amazon-nova-frontier-intelligence-and-industry-leading-price-performance/ (Dec 3 2024)
+- Key facts: params=unknown (Amazon did NOT disclose any Nova param counts), released=2024-12-03
+- Context windows (from AWS blog):
+  - Nova Micro: 128K tokens, text-only
+  - Nova Lite: 300K tokens, multimodal (text, image, video input)
+  - Nova Pro: 300K tokens, multimodal
+- Architecture: assumed dense; not disclosed.
+- Open weights: false (Bedrock-only).
+- Capabilities:
+  - Micro: text only, cap_vision=false, cap_audio=false, cap_video=false
+  - Lite: cap_vision=true, cap_video=true (up to 30 min video), cap_audio=false (no audio input mentioned in blog; video input but not audio)
+  - Pro: same as Lite — cap_vision=true, cap_video=true
+- cap_tool_use: Nova supports tool use / function calling through Bedrock Converse API — Amazon's blog mentions agentic workflows. Setting true for all three.
+- frontier_at_release: false — Dec 2024 frontier is Claude 3.5 Sonnet (Oct 2024), OpenAI o1, DeepSeek-V3.
+- No supporting_url needed — AWS blog covers context/modalities; no param count to support.
+
+#### Nova Premier
+- Source: https://aws.amazon.com/about-aws/whats-new/2025/04/amazon-nova-premier-complex-tasks-model-distillation/ (Apr 30 2025)
+- Key facts: params=unknown, context=1,000,000 tokens, released=2025-04-30
+- Architecture: assumed dense.
+- Capabilities: multimodal (documents, videos, images, codebases), cap_vision=true, cap_video=true, cap_tool_use=true (agentic workflows emphasized).
+- frontier_at_release: false — Apr 2025 has Claude 3.7 Sonnet, GPT-4.5.
+- Open weights: false.
+- No supporting_url — AWS announcement covers all claimed facts; no params to support.
+
+#### Nova Canvas / Nova Reel
+- SKIPPED. Canvas is image-gen (diffusion model), Reel is video-gen. Neither fits the "causal-decoder LLM" scope of this dataset. Orchestrator explicitly said "probably skip as they're not LLMs".
+
+### Judgment calls summary
+
+1. **Cohere "Original Command" (pre-R)**: skipped. No clean announcement event; it was a 2022 beta with rolling nightly updates into 2023. Orchestrator mentioned it in scope but the provenance doesn't cleanly fit the row-selection rule.
+2. **Cohere Command A Reasoning (Aug 2025)**: NOT in orchestrator's scope list; skipped. 111B params, reasoning model — if later desired, easy to add as a separate row.
+3. **AI21 Jurassic-2 Grande / Large**: NOT added as separate rows. Both announced same day as J2 Jumbo with no param disclosure, so they'd be identical-unknown rows with different names. Included only J2 Jumbo as the flagship entry. Deviation from "same-day family" rule justified because no per-size signal exists.
+4. **Reka Flash 3.1**: collapsed into Flash 3 row per PLAN's "dated API snapshots" rule — minor update, no capability class change.
+5. **Reka Core**: frontier_at_release kept false. It was positioned as competitive with GPT-4V / slightly behind Claude 3 Opus on multimodal evals at Apr 2024 launch. Not overall frontier.
+6. **Command R+ (104B, Apr 4 2024)**: frontier_open_at_release kept false. Llama 3 70B launched Apr 18 and Mixtral 8x22B also landed April. While Command R+ was the largest open-weights dense released in that moment (104B > 70B), the CC-BY-NC non-commercial license makes "open weights frontier" a closer call than typical Apache/MIT release — but orchestrator scope text says "any license (includes research-only, non-commercial, and fully open)". Still keeping false since Mixtral 8x22B (141B MoE) has more total params and was Apache 2.0. Command R+ was a significant point but not *the* open-weights frontier.
+
+### Fixup pass 2026-04-24 ("Other closed" rows 123-140)
+
+Verifier FAIL/PARTIAL triage edits applied:
+
+#### Row 127 — Command A Vision (Cohere)
+- Verifier PARTIAL: cap_tool_use=true not supported by either cited URL.
+- Re-checked https://cohere.com/blog/command-a-vision and https://huggingface.co/CohereLabs/command-a-vision-07-2025 — both silent on tool use / function calling / agentic capabilities. Blog focuses on enterprise image understanding; HF card lists image-text-to-text pipeline with no tool-use mention.
+- Edit: cap_tool_use true -> false.
+
+#### Row 128 — Jurassic-1 Jumbo (AI21)
+- Verifier FAIL: announcement_date 2021-08-11 disagrees with release blog.
+- The AI21 release blog banner reads "Aug. 4, 2021". 2021-08-11 was an incorrect read.
+- Edit: announcement_date 2021-08-11 -> 2021-08-04.
+
+#### Rows 129, 130, 131 — Jurassic-2 Jumbo / Inflection-1 / Inflection-2
+- Verifier PARTIAL: architecture_type=dense is researcher inference; cited URLs don't state MoE-vs-dense.
+- Applied xAI-era conservatism pattern: dense-vs-MoE unconfirmed -> 'other'. Consistent with the already-unknown param_disclosure on all three rows.
+- Edit: architecture_type dense -> other on each row; appended "Architecture (dense vs MoE) not confirmed in cited URL; marked 'other' per conservatism pattern." to param_source_note.
+
+#### Row 132 — Inflection-2.5
+- Instruction assumed cap_reasoning=true but CSV already had cap_reasoning=false. No action needed (possible stale verifier snapshot).
+
+#### Row 136 — Reka Flash 3
+- Instruction assumed cap_reasoning=false but CSV already had cap_reasoning=true with param_source_note already calling it a reasoning model. No action needed.
