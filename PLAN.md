@@ -38,6 +38,7 @@ Columns in order:
 | 16 | `cap_reasoning` | boolean | Test-time-reasoning family (o1, o3, DeepSeek-R1, QwQ, Gemini Thinking). |
 | 17 | `cap_tool_use` | boolean | Native function/tool calling officially supported at release. |
 | 18 | `release_url` | URL | Primary source: official announcement blog > paper > model card > reputable secondary source. |
+| 19 | `supporting_url` | URL or blank | Optional secondary source that backs facts not stated in `release_url` (e.g., the paper when the blog omits params, the Hugging Face card when the press release omits context window). Leave blank if `release_url` covers every populated field. Describe *what* this URL supports in `param_source_note` or RESEARCH_NOTES.md. |
 
 ## Scope
 
