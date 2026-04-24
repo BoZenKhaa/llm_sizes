@@ -451,3 +451,158 @@ Verifier fetched both cited URLs. Primary (`red.anthropic.com/2026/mythos-previe
 The 10T figure was attributable only to an Eric Hartford tweet and convergent community chatter that neither cited URL actually quotes or links. To keep the row honest per PLAN.md, reverted `total_params` to blank and `param_disclosure` from `leaked` to `unknown`. If a citable primary source for 10T (Hartford tweet added as third supporting, or a direct Anthropic disclosure) surfaces, repopulate.
 
 Kept `architecture_type=other` as the closest-fit enum value for "undisclosed."
+
+# OpenAI
+
+General policy for this lab: post-GPT-3, OpenAI has not officially disclosed parameter counts. GPT-2 (1.5B) and GPT-3 (175B) are the only rows with official params. GPT-4 uses the SemiAnalysis ~1.8T MoE leak (`leaked`). Everything else (GPT-4 Turbo, 4o, 4o mini, all o-series, 4.1, 5, etc.) gets `param_disclosure=unknown` with params blank.
+
+`cap_text=true` throughout. `cap_tool_use`: function calling GA'd 2023-06-13 after GPT-4's initial release, so GPT-4 (2023-03-14) row is false; GPT-3.5 Turbo initial row (Nov 30 2022 as ChatGPT) is false. GPT-4 Turbo (Nov 2023) and later have tool use.
+
+## GPT-1
+- Source: https://openai.com/index/language-unsupervised/
+- Supporting: https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf (paper gives 12-layer 768-dim architecture; 117M params derived)
+- Key facts: total=117000000 (~117M), context=512, released=2018-06-11
+- Notes: Per the paper: 12-layer decoder-only transformer, 768-dim, 12 heads, 3072 FFN, 512-token context. The canonical 117M param figure is widely cited (matches Wikipedia, semanticscholar summary). param_disclosure=official (the paper describes architecture dims from which 117M follows; OpenAI's Hugging Face code repo references 117M). Trained on BooksCorpus (~7000 books). Not frontier in modern sense — was a research proof-of-concept; mark frontier_at_release=false. cap_code_specialized=false. Open weights? OpenAI released code and pretrained weights at https://github.com/openai/finetune-transformer-lm alongside the paper — mark open_weights=true.
+
+## GPT-2
+- Source: https://openai.com/index/better-language-models/ (initial announcement 2019-02-14)
+- Supporting: https://openai.com/index/gpt-2-1-5b-release/ (full 1.5B weight release 2019-11-05)
+- Key facts: total=1500000000 (1.5B), context=1024, released=2019-02-14 (announcement; full 1.5B weights Nov 2019)
+- Notes: Staged release - initial Feb 14 2019 announcement released only 124M weights; 355M in May 2019; 774M in August; full 1.5B on Nov 5 2019. Following PLAN.md convention (release-time values) but also orchestrator guidance that "GPT-2 weights were eventually public" -> open_weights=true. Using 2019-02-14 as announcement_date per "first public announcement" rule. frontier_open_at_release=true — at Nov 2019 1.5B was the largest openly available LM; also clearly the frontier for Feb 2019 announcement as the largest transformer LM publicly unveiled (Megatron-LM was earlier NVIDIA but not comparable scale at that time). Context 1024 tokens per GPT-2 paper. cap_code_specialized=false.
+
+## GPT-3
+- Source: https://openai.com/index/language-models-are-few-shot-learners/
+- Supporting: https://arxiv.org/abs/2005.14165 (paper states 175B params and architecture details including 2048 context)
+- Key facts: total=175000000000, context=2048, released=2020-05-28 (arXiv v1 date; OpenAI blog coincident)
+- Notes: Official 175B disclosure in the paper. Architecture: dense decoder-only transformer. Context 2048 tokens (community.openai.com and EleutherAI confirm). frontier_at_release=true — at May 2020, clearly SOTA LM by a wide margin. open_weights=false (closed API; beta starting June 2020). Not code-specialized. No tool use. No vision/audio. param_disclosure=official (paper).
+
+## Codex (2021)
+- Source: https://arxiv.org/abs/2107.03374 (paper; 2021-07-07 on arXiv)
+- Supporting: https://openai.com/index/introducing-codex/ (August 10 2021 blog announcing private beta)
+- Key facts: total=12000000000 (12B), context=4096, released=2021-07-07 (arXiv) / 2021-08-10 (blog private-beta launch). Using arXiv date as announcement since it's the first public disclosure.
+- Notes: The paper discusses multiple Codex sizes (300M, 2.5B, 12B). Canonical public Codex model in the initial private beta is the 12B (code-davinci-001 / -002 derived from it). Context_length 4096 per OpenAI developer community threads contemporaneous with private beta. param_disclosure=official (paper explicitly states parameter counts). cap_code_specialized=true. open_weights=false. Not frontier overall (GPT-3 was bigger and still current); frontier for code specifically at release — but we only flag `frontier_at_release` for overall SOTA, so false. cap_tool_use=false.
+
+## GPT-3.5 Turbo / ChatGPT initial release
+- Source: https://openai.com/index/chatgpt/ (ChatGPT launch, 2022-11-30)
+- Key facts: total=unknown (never officially disclosed; gpt-3.5 lineage only loosely described), context=4096 (original gpt-3.5-turbo), released=2022-11-30
+- Notes: ChatGPT initial release used a model described as "fine-tuned from a model in the GPT-3.5 series." The GPT-3.5 Turbo API model named gpt-3.5-turbo was launched in March 2023 with 4k context. Using 2022-11-30 ChatGPT launch as the canonical "GPT-3.5 era" release event per orchestrator guidance. Named "GPT-3.5 (ChatGPT)" in the CSV for clarity. param_disclosure=unknown (OpenAI never gave numbers; community estimates vary wildly from ~20B to 175B — no authoritative source). cap_vision=false. cap_audio=false. cap_code_specialized=false. cap_tool_use=false (function calling came June 2023). cap_reasoning=false. frontier_at_release=true — at launch it was the top conversational model; GPT-4 did not yet exist. open_weights=false.
+
+## GPT-4
+- Source: https://openai.com/index/gpt-4-research/
+- Supporting: https://semianalysis.com/2023/07/10/gpt-4-architecture-infrastructure/ (SemiAnalysis MoE leak — 1.8T total / ~280B active, 16 experts top-2)
+- Key facts: total=1800000000000 (~1.8T leaked), active=280000000000 (~280B leaked, 2 of 16 experts x ~111B each plus shared params — exact number cited as ~280B in leak coverage), context=8192 (base model at launch; 32k variant available with limited access), released=2023-03-14
+- Notes: Per SemiAnalysis leak (published Jul 10 2023; widely covered by The-Decoder etc): ~1.8T total across 120 layers, MoE with 16 experts of ~111B MLP each, top-2 routing. Active per token ~280B. This is the canonical `leaked` param entry. architecture_type=MoE. cap_vision=false at initial 2023-03-14 launch (GPT-4V vision rollout later in Sep 2023 for ChatGPT; vision in API came with gpt-4-turbo-with-vision Nov 2023 DevDay). cap_audio=false. cap_tool_use=false (function calling June 2023). cap_reasoning=false (pre-o1 era). frontier_at_release=true. open_weights=false.
+
+## GPT-4 Turbo
+- Source: https://openai.com/index/new-models-and-developer-products-announced-at-devday/
+- Key facts: params=unknown (OpenAI never disclosed; no credible single-point leak specific to Turbo), context=128000, released=2023-11-06
+- Notes: DevDay 2023. First model with 128k context. Introduced JSON mode, reproducible outputs, vision in gpt-4-turbo-with-vision. cap_vision=true (GPT-4 Turbo with Vision launched same event; listed on DevDay blog). cap_tool_use=true (function calling & Assistants API GA). cap_reasoning=false. frontier_at_release=true — was SOTA at launch, beating base GPT-4, Claude 2/2.1 at the time. Knowledge cutoff April 2023. open_weights=false.
+
+## GPT-4o
+- Source: https://openai.com/index/hello-gpt-4o/
+- Key facts: params=unknown, context=128000, released=2024-05-13
+- Notes: Native multimodal (text+vision+audio), real-time voice mode. cap_vision=true, cap_audio=true (native audio in/out), cap_tool_use=true, cap_code_specialized=false, cap_reasoning=false. frontier_at_release=true — at May 2024 was SOTA especially on multimodal and voice. Knowledge cutoff Oct 2023. open_weights=false. No cap_video (live video demos but not formally model input at launch; video input came later).
+
+## GPT-4o mini
+- Source: https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/
+- Key facts: params=unknown, context=128000, released=2024-07-18
+- Notes: Cost-efficient small model. At launch supported text and vision; audio promised but not initially available. cap_vision=true (text+vision in API at launch per OpenAI blog). cap_audio=false (blog says "support for text, image, video and audio inputs and outputs coming in the future"). cap_tool_use=true (function calling supported). cap_reasoning=false. Not frontier — designed as cost-efficient tier. 82% MMLU. open_weights=false.
+
+## OpenAI o1-preview
+- Source: https://openai.com/index/introducing-openai-o1-preview/
+- Key facts: params=unknown, context=128000 (API; 32k in ChatGPT), released=2024-09-12
+- Notes: First reasoning model. cap_reasoning=true. cap_vision=false at initial preview launch (image support came with full o1 in December 2024). cap_tool_use=false at preview (no function calling / structured outputs until full o1/o3 era). cap_audio=false. Not frontier overall — preview was competitive with GPT-4o but ChatGPT-restricted and no tools. Actually judgment: o1-preview was SOTA on reasoning tasks (math, science, code). Marking frontier_at_release=true given it defined a new reasoning frontier. open_weights=false.
+
+## OpenAI o1-mini
+- Source: https://openai.com/index/introducing-openai-o1-preview/
+- Key facts: params=unknown, context=128000 (API), released=2024-09-12
+- Notes: Smaller, cost-efficient reasoning variant. Same blog as o1-preview. cap_reasoning=true. cap_vision=false. cap_tool_use=false. frontier_at_release=false (smaller tier).
+
+## OpenAI o1 (full)
+- Source: https://openai.com/index/introducing-chatgpt-pro/ (12 Days of OpenAI Day 1, Dec 5 2024; o1 full launch)
+- Supporting: https://openai.com/index/openai-o1-system-card/ (system card)
+- Note: The OpenAI blog for o1 full release is https://openai.com/index/openai-o1-and-new-tools-for-developers/ (Dec 17 2024, API availability). The Dec 5 announcement brought o1 full to ChatGPT Pro; Dec 17 brought it to API with function calling, structured outputs, vision.
+- Key facts: params=unknown, context=200000 (API context with o1 full; increased from 128k of o1-preview), released=2024-12-05 (ChatGPT) / 2024-12-17 (API). Using 2024-12-05 as announcement_date.
+- Notes: Full o1 added vision (image uploads), 34% fewer major errors vs o1-preview, supported function calling, structured outputs, developer messages. cap_reasoning=true, cap_vision=true, cap_tool_use=true (added Dec 17 API). frontier_at_release=true — at Dec 2024 was SOTA reasoning. open_weights=false.
+
+## OpenAI o3-mini
+- Source: https://openai.com/index/openai-o3-mini/
+- Key facts: params=unknown, context=200000, released=2025-01-31
+- Notes: First o-series model GA'd with function calling, structured outputs, and developer messages from day one. Three reasoning_effort settings (low/medium/high). cap_reasoning=true, cap_vision=false (o3-mini did not support vision input at launch per OpenAI docs; o3 full and o4-mini did), cap_tool_use=true. Not frontier (cost-efficient tier). open_weights=false. 200k context per OpenAI platform docs.
+
+## OpenAI o3 (full) + o4-mini
+- Source: https://openai.com/index/introducing-o3-and-o4-mini/ (2025-04-16)
+- Key facts for o3: params=unknown, context=200000, released=2025-04-16
+- Key facts for o4-mini: params=unknown, context=200000, released=2025-04-16
+- Notes: Two-row release event. Both are the first o-series models that can agentically use all ChatGPT tools (web search, Python, file analysis, image gen). "Think with images" — first time reasoning is applied to visual inputs directly. cap_reasoning=true, cap_vision=true, cap_tool_use=true, cap_audio=false. For o3: frontier_at_release=true — at Apr 2025 was SOTA reasoning, top on many benchmarks (Claude 3.7 Sonnet was a peer; judgment call). For o4-mini: frontier_at_release=false (cost-efficient tier but exceptionally strong — best-benchmarked on AIME; still not the family flagship). Note on o3 announcement date: o3 was previewed Dec 20 2024 but GA April 16 2025. Using 2025-04-16 as announcement_date (when the actual model was released; Dec 2024 was only a preview of benchmark numbers). Note o3 was preceded by a separate o3-mini GA (Jan 31).
+- open_weights=false.
+
+## GPT-4.1
+- Source: https://openai.com/index/gpt-4-1/
+- Key facts: params=unknown, context=1000000 (1M tokens), released=2025-04-14
+- Notes: API-only at launch. Three sizes released simultaneously: GPT-4.1, GPT-4.1 mini, GPT-4.1 nano. Per PLAN.md row-selection rule, treat as three rows since distinct size announcements. cap_vision=true (GPT-4.1 is multimodal per docs), cap_tool_use=true, cap_reasoning=false, cap_code_specialized=false. 21.4pp SWE-bench improvement over GPT-4o. Knowledge cutoff June 2024. frontier_at_release=false — at Apr 14 2025, o3 had stronger reasoning (launched 2 days later) and Claude 3.7 Sonnet was already out. GPT-4.1 positioned as non-reasoning coding workhorse. open_weights=false.
+- Judgment: including 4.1, 4.1 mini, 4.1 nano as separate rows given they're explicitly named sizes in the announcement.
+
+## o3-pro
+- Source: https://openai.com/index/o3-pro/ (assumed; TechCrunch corroborates June 10 2025)
+- Supporting: https://techcrunch.com/2025/06/10/openai-releases-o3-pro-a-souped-up-version-of-its-o3-ai-reasoning-model/
+- Key facts: params=unknown, context=200000, released=2025-06-10
+- Notes: Uses parallel test-time compute — o3 variant that thinks longer and harder. Replaces o1-pro. Available to ChatGPT Pro & Team. cap_reasoning=true, cap_vision=true, cap_tool_use=true. frontier_at_release=true (SOTA on hard reasoning tasks at release, though Claude Opus 4 May 22 2025 was a peer). Judgment: marking false - o3-pro is a compute scaling variant of o3, not a new capability frontier. Let me reconsider: it was positioned as the most capable reasoning model at release, exceeding o3. Marking frontier_at_release=true given OpenAI explicitly positioned it as SOTA. open_weights=false.
+- Primary URL note: I'm using `https://openai.com/index/o3-pro/` — standard OpenAI announcement URL format. If not exact, TechCrunch is the confirmed secondary.
+
+## GPT-4.5
+- Source: https://openai.com/index/introducing-gpt-4-5/
+- Supporting: https://cdn.openai.com/gpt-4-5-system-card-2272025.pdf (system card)
+- Key facts: params=unknown (largest OpenAI model to date per announcement but no number), context=128000, released=2025-02-27
+- Notes: Research preview. Largest model by compute/data to that point. cap_vision=true, cap_tool_use=true, cap_reasoning=false (not a thinking model — OpenAI explicitly positioned as scaled pre-training + post-training, not test-time reasoning). Deprecated from API Jul 14 2025 when GPT-4.1 replaced it. Not initially in scope per orchestrator brief but is a distinct headline event between o-series releases and GPT-4.1 — including as a row per "any other headline flagship" clause. frontier_at_release=false — at Feb 27 2025 Claude 3.7 Sonnet was released 3 days earlier (Feb 24) and was clearly ahead on benchmarks; GPT-4.5 was primarily a "taste and EQ" play. open_weights=false.
+
+## GPT-5
+- Source: https://openai.com/index/introducing-gpt-5/
+- Supporting: https://openai.com/index/introducing-gpt-5-for-developers/ (developer API details; context=400k)
+- Key facts: params=unknown, context=400000 (272k input + 128k output/reasoning), released=2025-08-07
+- Notes: Unified system: "smart efficient model" (gpt-5-main) + "deeper reasoning model" (gpt-5-thinking) + real-time router. Per OpenAI: "unified system that knows when to respond quickly and when to think longer." cap_reasoning=true (controllable thinking is core to GPT-5 per announcement). cap_vision=true, cap_tool_use=true. API sizes: gpt-5, gpt-5-mini, gpt-5-nano. Treating as separate rows for standard, mini, nano per GPT-4.1 precedent. frontier_at_release=true — SOTA across most benchmarks at Aug 7 2025. open_weights=false. GPT-5-pro (parallel test-time compute variant) is a ChatGPT Pro feature; arguably a separate row but OpenAI describes it as a setting on gpt-5-thinking, not a distinct model — treating as part of the GPT-5 flagship row.
+
+## GPT-5.1
+- Source: https://openai.com/index/gpt-5-1/
+- Supporting: https://openai.com/index/gpt-5-1-for-developers/
+- Key facts: params=unknown, context=400000, released=2025-11-12
+- Notes: Includes Instant, Thinking variants. Adaptive reasoning in Instant. Warmer conversational tone. cap_reasoning=true, cap_vision=true, cap_tool_use=true. Deprecated Mar 11 2026 when GPT-5.3 replaced. Including as a row since it's a distinct named release with system card. frontier_at_release=false — incremental over GPT-5; Anthropic's Sonnet 4.5/Opus 4.5 were strong peers. open_weights=false.
+
+## GPT-5.2
+- Source: https://openai.com/index/introducing-gpt-5-2/
+- Supporting: https://openai.com/index/gpt-5-system-card-update-gpt-5-2/
+- Key facts: params=unknown, context=400000, released=2025-12-11
+- Notes: "Code Red" rushed release in response to Google Gemini 3. Three modes: Instant, Thinking (standard + extended), Pro. cap_reasoning=true, cap_vision=true, cap_tool_use=true. frontier_at_release=true — Anthropic Sonnet 4.5 still out; Gemini 3 had just shipped; GPT-5.2 positioned as retaking frontier on coding and agentic tasks. Marking true given OpenAI's Code Red framing and strong benchmark claims. open_weights=false.
+
+## GPT-5.5
+- Source: https://openai.com/index/introducing-gpt-5-5/
+- Supporting: https://techcrunch.com/2026/04/23/openai-chatgpt-gpt-5-5-ai-model-superapp/
+- Key facts: params=unknown, context=400000 (400K in Codex), released=2026-04-23
+- Notes: Latest OpenAI frontier as of 2026-04-24 cutoff (day after release). Three variants: standard, Thinking, Pro. 88.7% SWE-bench, 92.4% MMLU, 60% fewer hallucinations vs 5.4. Rolling out to paid tiers in ChatGPT and Codex; API release delayed. cap_reasoning=true, cap_vision=true, cap_tool_use=true. frontier_at_release=true. open_weights=false. Not including GPT-5.3/5.4/Codex variants as separate rows — they're point updates between 5.2 and 5.5; the orchestrator scope asks for "headline flagship" events and I treat 5.1, 5.2, and 5.5 as the canonical numbered versions with distinct system cards. (5.3/5.4 included in the skipped list below.)
+
+## Release events considered but skipped
+- GPT-3.5 Turbo API launch (March 2023) / gpt-3.5-turbo-16k (June 2023): collapsed into the 2022-11-30 ChatGPT row per PLAN.md row-selection rule (API snapshots of the same headline model). The 16k variant was a context extension, not a distinct headline model.
+- GPT-4-32k: context-extension variant of GPT-4; collapsed into the GPT-4 headline row.
+- GPT-4 Turbo with Vision (Nov 2023) vs base GPT-4 Turbo: same headline model; vision was part of the Turbo DevDay package. Captured on the GPT-4 Turbo row.
+- gpt-4-turbo-2024-04-09: API snapshot; collapsed.
+- GPT-4o audio preview, realtime API, audio in API (Oct 2024): feature additions to GPT-4o, not a new model.
+- gpt-4o-2024-08-06 / 11-20 snapshots: collapsed into GPT-4o row.
+- o1-pro (Mar 2025): variant of o1 with parallel test-time compute; I'm making a judgment call to skip since it's a compute-scaling setting on o1 (same model weights per OpenAI docs). Note this asymmetry with o3-pro, which I am including — the reason I'm including o3-pro is the orchestrator explicitly listed "o3-pro" as a possible inclusion.
+- GPT-5.3, GPT-5.4, GPT-5.2-Codex, GPT-5.3-Codex: rapid-cadence point updates between 5.2 and 5.5; Codex variants are coding-agent specialized fine-tunes. Including all would inflate the row count with minor refreshes. Keeping 5.1/5.2/5.5 as the representative headline versions.
+- Operator, Sora, DALL-E 3, Whisper, text-embedding-3-*, moderation models, gpt-image-1: not general-purpose text LLMs.
+- Advanced Voice Mode launch (Sep 2024): a ChatGPT feature on top of GPT-4o, not a new model.
+- GPT-OSS-20B / GPT-OSS-120B (Aug 2025 open-weights release): these ARE separate releases and should arguably be included. However they're the first OpenAI open-weights models — noting here for scope expansion if needed. **Including decision**: per orchestrator scope ("any other headline flagship between 2025-04 and 2026-04-24"), gpt-oss is borderline. I'm including gpt-oss-120B as a row since it's a distinct open-weights headline event — it will be one of very few rows with open_weights=true for OpenAI.
+- Actually, re-reading the scope: orchestrator listed specific events and said "Any other headline flagship ... GPT-5 variants, o3-pro." gpt-oss is a flagship-adjacent event. Including the 120B row; skipping 20B to avoid bloat.
+
+## gpt-oss-120b
+- Source: https://openai.com/index/introducing-gpt-oss/ (assumed OpenAI announcement URL)
+- Supporting: https://huggingface.co/openai/gpt-oss-120b (model card)
+- Key facts: total=117000000000 (117B), active=5100000000 (5.1B), context=131072 (128k), released=2025-08-05
+- Notes: Open-weights reasoning model. MoE, 128 experts, 4 active per token per HF card. Apache 2.0 license. First OpenAI open-weights LLM since GPT-2. cap_reasoning=true (chain-of-thought with configurable reasoning effort), cap_vision=false, cap_tool_use=true, cap_code_specialized=false. frontier_at_release=false (smaller than GPT-5 proprietary; similar tier to o3-mini/o4-mini on benchmarks). frontier_open_at_release=false — at Aug 5 2025, DeepSeek-V3.1 / Qwen3 / Llama 4 were competing; gpt-oss was competitive but not clearly the frontier open-weights. Actually 120B MoE with 5.1B active is a strong open reasoning model; marking frontier_open_at_release=true given it was the strongest o-series-style open reasoning model at release.
+- open_weights=true. param_disclosure=official (OpenAI blog and HF card explicitly state 117B total / 5.1B active — these are the canonical numbers, not rounded 120B). Using 117B for total, 5.1B active.
+
+## Fields I could not confirm from primary sources (OpenAI)
+- All post-GPT-3 parameter counts except GPT-4 (which has the SemiAnalysis leak) — OpenAI policy.
+- o3-pro blog URL: assumed openai.com/index/o3-pro/. TechCrunch supporting.
+- GPT-5 exact architecture (MoE vs dense; router + multiple models): architecture_type=other is the best fit since it's explicitly a multi-model system; but orchestrator convention leans toward `other` only when nothing else fits. Going with `other` to be honest about the unified router architecture. Active for GPT-5 unknown.
+- GPT-5.5 context confirmed as 400k in Codex; API context for non-Codex standard GPT-5.5 not yet confirmed for general API (blog says "not launching to the API today").

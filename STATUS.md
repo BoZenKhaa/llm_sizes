@@ -7,7 +7,7 @@ verifier-reviewed, and any fixups applied.
 
 ## Closed-weights track (priority order)
 
-- [ ] **OpenAI** — GPT-3, 3.5, 4, 4 Turbo, 4o, 4o-mini, o1, o3, o3-mini, o4-mini, 4.1, 5 (verify)
+- [x] **OpenAI** — GPT-1 → GPT-5.5 + gpt-oss-120b (27 rows)
 - [ ] **Google / Google DeepMind** — Gemini 1.0/1.5/2.0/2.5 family + Gemma open-weights companion; historical PaLM, PaLM 2, LaMDA, Gopher, Chinchilla
 - [x] **Anthropic** — Claude 1 → Opus 4.7 + Mythos (19 + 1 rows). Two leaks populated (Sonnet 4.5, Opus 4.6 via Musk-tweet chain).
 - [ ] **xAI** — Grok-1.5, Grok-2, Grok-3, Grok-4.x (Grok-1 open-weight under open-weights track)
@@ -42,6 +42,7 @@ verifier-reviewed, and any fixups applied.
 
 - **Mistral (done 2026-04-24)**: researcher added 30 rows; verifier caught 8 hard FAILs (context window, tool-use booleans, vision-encoder param totals, inferred `official` disclosures); researcher fixup pass corrected all. Defensible-as-is.
 - **Anthropic (done 2026-04-24)**: researcher added 19 rows; 17 stayed `param_disclosure=unknown` (no credible third-party estimates); Sonnet 4.5 and Opus 4.6 populated from the April 2026 Musk-tweet leak chain. Mythos row added then trimmed — `total_params` pulled back to blank after verification found the 10T figure wasn't in either cited URL. See RESEARCH_NOTES.md "Mythos revision 2026-04-24" for the rollback.
+- **OpenAI (done 2026-04-24)**: researcher added 27 rows (lines 52–78): GPT-1, GPT-2, GPT-3, Codex (2021), GPT-3.5/ChatGPT, GPT-4, GPT-4 Turbo, GPT-4o/4o-mini, o1-preview/mini/full, o3-mini, GPT-4.5, GPT-4.1/mini/nano, o3, o4-mini, o3-pro, gpt-oss-120b, GPT-5/5-mini/5-nano, 5.1, 5.2, 5.5. All `openai.com/index/*` URLs 403 to WebFetch/curl (Cloudflare), so verifier couldn't confirm content directly; orchestrator cross-checked the late-dated rows (5.1/5.2/5.5) via WebSearch and all are real releases. Researcher-side fixups: stripped unsupported benchmark numbers from GPT-5.5's `param_source_note` (88.7% SWE-bench / 92.4% MMLU / 400K Codex context were not in either cited URL), tightened o3-pro's "assumed URL" confessional wording, dropped GitHub repo reference from GPT-1's note. Only GPT-3 (175B official) and GPT-4 (~1.8T leaked, SemiAnalysis as supporting_url) carry param figures from the pre-GPT-4 era; gpt-oss-120b is the only post-GPT-4 row with `official` params (117B/5.1B MoE). Everything else is `unknown` per OpenAI's disclosure policy.
 
 ## Workflow for each new lab
 
