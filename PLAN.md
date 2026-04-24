@@ -21,8 +21,8 @@ Columns in order:
 | 1 | `model_name` | string | Canonical name, including version (e.g., `Claude 3.5 Sonnet (2024-10)`, `Llama 3.1 405B`, `GPT-4o`, `DeepSeek-V3`). |
 | 2 | `organization` | string | Lab / publisher (`OpenAI`, `Anthropic`, `Google DeepMind`, `Meta`, `Mistral AI`, `xAI`, `DeepSeek`, `Alibaba/Qwen`, etc.). |
 | 3 | `announcement_date` | ISO date | Date of first public announcement (blog post / press release / paper), whichever came first. |
-| 4 | `total_params` | number (integer or decimal in billions) | Total parameters. For MoE, this is all experts summed. Units: store as number of parameters (e.g., `405000000000`) to keep it unambiguous. |
-| 5 | `active_params` | number | Parameters activated per token. For dense models: equals `total_params`. For MoE: the active subset (e.g., DeepSeek-V3 → 37B). |
+| 4 | `total_params` | number (integer or decimal in billions) | Total parameters across the **whole** model. For MoE: all experts summed. For multimodal models with a vision / audio encoder: decoder + encoder(s) summed (e.g., Pixtral 12B is 12B decoder + 0.4B vision encoder → `12400000000`). Note the decomposition in `param_source_note`. Units: store as number of parameters (e.g., `405000000000`) to keep it unambiguous. |
+| 5 | `active_params` | number | Parameters activated per token. For dense models: equals `total_params`. For MoE: the routed-active subset (e.g., DeepSeek-V3 → 37B). When the lab reports both a "routed active" number and an "active including embedding/output layers" number, use the routed figure and note the discrepancy in `param_source_note`. |
 | 6 | `param_disclosure` | enum | `official` / `leaked` / `estimated` / `unknown`. |
 | 7 | `param_source_note` | string | Short note if not `official` — e.g., `SemiAnalysis 2023-07 leak`, `community estimate`, `blank`. |
 | 8 | `architecture_type` | enum | `dense`, `MoE`, `encoder-only`, `encoder-decoder`, `SSM`, `hybrid`, `other`. |

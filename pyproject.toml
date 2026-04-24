@@ -1,0 +1,17 @@
+[project]
+name = "llm-sizes-tools"
+version = "0.1.0"
+description = "Helpers for the llm_sizes.csv research workflow."
+readme = "README.md"
+authors = [
+    { name = "Jan Mrkos", email = "jan-ext@ahum.ai" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+csv-row = "llm_sizes_tools.csv_row:main"
+
+[build-system]
+requires = ["uv_build>=0.11.0,<0.12.0"]
+build-backend = "uv_build"
