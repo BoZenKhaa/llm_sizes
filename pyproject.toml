@@ -11,6 +11,7 @@ dependencies = []
 
 [project.scripts]
 csv-row = "llm_sizes_tools.csv_row:main"
+check-urls = "llm_sizes_tools.check_urls:main"
 
 [build-system]
 requires = ["uv_build>=0.11.0,<0.12.0"]

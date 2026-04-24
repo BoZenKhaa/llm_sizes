@@ -72,6 +72,12 @@ uv run csv-row 5 --field cap_tool_use
 
 # several fields
 uv run csv-row 12 --field total_params,active_params,param_source_note
+
+# multiple rows in one call — preferred when verifying a batch
+uv run csv-row 52 71 78 --field model_name,param_source_note
+uv run csv-row 52-61 --field release_url,supporting_url
 ```
+
+When you receive a range to verify (e.g., "rows 62 through 71"), invoke `csv-row` **once** with the range — do not loop `for n in ...` over single-row calls. Multi-row output is auto-prefixed with `=== line N ===` separators.
 
 The script defaults to `llm_sizes.csv` at the project root. Pass `--csv <path>` to point elsewhere. Exit code 2 means bad arguments (line out of range, unknown field, malformed row); check stderr.

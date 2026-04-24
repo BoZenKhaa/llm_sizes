@@ -62,3 +62,14 @@ Corollary: `param_disclosure=official` requires that the primary URL **explicitl
 5. Return a concise summary to the orchestrator: which rows you added (by line number or model name), any models you skipped and why, any fields you couldn't confirm.
 
 **Do not verify your own rows.** A separate verifier agent does that. Your job is to produce rows with honest source attribution; errors will be caught downstream.
+
+## Before returning: URL sanity check
+
+After appending rows, run `check-urls` against the new rows so obvious typos (404s) are caught before the verifier cycle:
+
+```bash
+# check release_url + supporting_url on the rows you just added
+uv run check-urls --from-csv 52-78
+```
+
+The helper HEAD-checks each URL with a browser user agent and returns exit 1 if any URL is not 2xx/3xx. Note: a few lab sites (openai.com in particular) serve Cloudflare 403 to automated user agents even when the page is real — a systematic 403 across every URL from one domain is a bot-block, not a fabrication signal, and you should flag it as such in your summary rather than rewriting the URLs. A lone 404 or 500 among 2xx siblings, on the other hand, is a real mistake — fix it before returning.
