@@ -802,3 +802,114 @@ General policy for this lab: post-GPT-3, OpenAI has not officially disclosed par
 
 ## CNBC Cloudflare bot-block
 - https://www.cnbc.com/* URLs systematically return 403 to automated fetchers (WebFetch, raw curl without headers) while resolving 200 to browser-UA requests. The check-urls helper with its browser UA confirms reachability. Do not rewrite CNBC URLs on the basis of a 403 from WebFetch alone.
+
+## xAI research 2026-04-24 (rows 109-122)
+
+### Rows added
+- 109 Grok-1.5 (2024-03-28)
+- 110 Grok-1.5V (2024-04-12)
+- 111 Grok-2 (2024-08-13)
+- 112 Grok-2 mini (2024-08-13)
+- 113 Grok-3 (2025-02-17)
+- 114 Grok-3 (Think) (2025-02-17)
+- 115 Grok-3 mini (2025-02-17)
+- 116 Grok-3 mini (Think) (2025-02-17)
+- 117 Grok-4 (2025-07-09)
+- 118 Grok-4 Heavy (2025-07-09)
+- 119 Grok-4 Fast (2025-09-19)
+- 120 Grok-4.1 (2025-11-17)
+- 121 Grok-4.1 Fast (2025-11-17)
+- 122 Grok-4.20 (2026-02-17)
+
+All 14 rows are `param_disclosure=unknown` with both param columns blank — xAI has not officially disclosed parameter counts for any of the closed-weight Grok generations. (Grok-1's 314B MoE disclosure belongs to the open-weights track and is out of scope here.) architecture_type=`other` for all rows on the same grounds — xAI has not confirmed dense-vs-MoE publicly for any Grok ≥ 1.5, and retro-fitting Grok-1's MoE onto later generations would be speculation.
+
+### x.ai/news/* Cloudflare bot-block
+Identical failure mode to openai.com. Every `https://x.ai/news/grok-*` URL returns 403 to WebFetch and to `check-urls` (browser UA with redirects) despite resolving fine in a real browser. The 403s are a domain-wide automation block, not a hallucination signal. WebSearch snippets and reputable secondary coverage confirm each slug (`grok-1.5`, `grok-1.5v`, `grok-2`, `grok-3`, `grok-4`, `grok-4-fast`, `grok-4-1`, `grok-4-1-fast`) is real. I kept the xAI URL as `release_url` for each model and backed every non-trivial fact with a `supporting_url` that is fetchable.
+
+### Supporting-URL choices and what they back
+- **Grok-1.5**: TechCrunch 2024-03-28 coverage backs announcement date and 128K context.
+- **Grok-1.5V**: SiliconANGLE backs the April 12 2024 announcement and vision-capability description; parameter count untouched.
+- **Grok-2 / Grok-2 mini**: Wikipedia "Grok (chatbot)" article backs August 13 2024 beta debut and the documented fact that image-understanding was added in October 2024 (not at release), which is why `cap_vision=false` for both Aug-2024 rows.
+- **Grok-3 family (rows 113-116)**: TechCrunch 2025-02-17 article backs the release date, the existence of both reasoning and non-reasoning variants (Grok 3, Grok 3 Reasoning, Grok 3 mini, Grok 3 mini Reasoning), and "enhanced image analysis" for cap_vision.
+- **Grok-4**: data.x.ai model card PDF is the primary supporting URL — quotes "latest reasoning model from xAI with advanced reasoning and tool-use capabilities" (backs cap_reasoning + cap_tool_use); TechCrunch 2025-07-09 covers the release date and HLE benchmark numbers.
+- **Grok-4 Heavy**: TechCrunch 2025-07-09 quotes Musk's "study group" multi-agent description and the 50.7% HLE claim (backs frontier_at_release=true).
+- **Grok-4 Fast**: Simon Willison's blog post is a high-quality technical writeup confirming 2M context, unified reasoning/non-reasoning architecture, and tool-use RL training.
+- **Grok-4.1 / 4.1 Fast**: Better Stack guide backs November 17 2025 launch, the Thinking reasoning mode, Agent Tools API (cap_tool_use), and Grok-4.1 Fast's 2M context.
+- **Grok-4.20**: no dedicated x.ai/news page existed at research time; `release_url` is docs.x.ai/developers/release-notes (which lists "Grok 4.20 and Grok 4.20 Multi-agent are live"), supporting_url is NextBigFuture's Feb 2026 coverage of the multi-agent system and provisional LMArena ELO.
+
+### Judgment calls worth re-verifying
+- **Grok-3 as frontier_at_release=true**. Grok-3 (Think) topped o3-mini-high on AIME 2025 and was in the same tier as o1 at Feb 2025 release. The brief warned to be conservative, but Grok-3 genuinely was at the top of its era before GPT-5 / Claude 4 / Gemini 2.5. I left Grok-3 and Grok-3 (Think) as frontier, but Grok-3 mini variants as non-frontier (smaller sibling).
+- **Grok-4 / Grok-4 Heavy as frontier**. Grok-4 Heavy hit 50.7% HLE (first model over 50%) and Artificial Analysis Intelligence Index listed it top at release. Clear frontier call.
+- **Grok-4.1 as frontier**. xAI reported LMArena Text Arena #1 at 1483 Elo at release — a defensible frontier claim.
+- **Grok-4.20 as frontier**. Reported LMArena 1505-1535 at release (above Grok-4.1). Marginal but defensible.
+- **Grok-3 reasoning variants as separate rows**. xAI explicitly announced "Grok 3 (Think)" and "Grok 3 mini (Think)" as distinct beta reasoning models, so the four-row split (base + Think, for each of full and mini) matches the Row-selection rule "when the same name ships twice with different behavior ... that's two rows with dated names." Alternative would have been two rows with cap_reasoning toggled per-mode, but the split preserves more information for the downstream plot.
+- **Grok-4 cap_vision left false**. Neither the x.ai/news/grok-4 page (bot-blocked, can't verify) nor the model card PDF nor the TechCrunch coverage explicitly states "native image input" at release. Conservative setting — if verifier finds explicit backing in a fetchable URL, flip to true.
+- **architecture_type=`other`** for every Grok row. xAI has not publicly confirmed dense-vs-MoE for closed-weight Grok generations; the only confirmed architecture is Grok-1 (MoE, 314B) which is out of scope. Defaulting to `other` rather than guessing.
+
+### Fields I could not confirm from primary sources
+- Parameter counts for every closed-weight Grok model.
+- Architecture type (dense vs MoE) for every closed-weight Grok model.
+- Exact context-window numbers for Grok-2 and Grok-2 mini (used 131072 per secondary API docs and community summaries; xAI blog did not explicitly quote a token count I could pin to the bot-blocked URL).
+- Native image input for Grok-4 and Grok-4 Heavy (left cap_vision=false).
+- Grok-3 API context reality vs blog claim: xAI claimed 1M but the initial API launch in April 2025 capped at 131K. Per "max at release" convention I used the xAI blog's 1M claim; if the verifier prefers the deployable limit, adjust to 131072.
+- Whether Grok-3 supports function calling: not explicitly mentioned in TechCrunch 2025-02-17; left cap_tool_use=false across the Grok-3 family. (DeepSearch is a product feature, not an API function-calling spec.)
+
+### check-urls pre-flight
+- Every `https://x.ai/news/grok-*` URL returns 403 — systematic Cloudflare bot-block, not a fabrication signal. All other cited URLs (TechCrunch, SiliconANGLE, Wikipedia, data.x.ai PDF, docs.x.ai, Simon Willison, Better Stack, NextBigFuture) return 200.
+
+## xAI fixup 2026-04-24
+
+Verifier-flagged issues on rows 109-122 resolved this pass.
+
+### Row 110 (Grok-1.5V)
+- context_window: 128000 -> blank. Neither release_url (x.ai/news/grok-1.5v, Cloudflare-blocked) nor supporting_url (SiliconANGLE) explicitly states a token count for Grok-1.5V. Inheritance from Grok-1.5 base is inference, not disclosure; per instructions, blanked rather than leave unverifiable number.
+- param_source_note: updated to remove the "(128K)" inheritance claim and explain the blank.
+
+### Row 111 (Grok-2)
+- supporting_url: Wikipedia -> TechCrunch 2024/08/13 ("xais-grok-can-now-generate-images-on-x"). TechCrunch article text explicitly states "xAI launched Grok-2 and Grok-2 mini in beta today" on Aug 13 2024, resolving the Wikipedia "Aug 14" mismatch in favor of Aug 13 (verified via WebFetch).
+- context_window: 131072 -> blank. TechCrunch does not give a token count. The 131,072 value is only documented for the later grok-2-1212 API build (Dec 2024, per OpenRouter/llm-stats) and cannot be carried on a release-date row without a contemporaneous disclosure. Blanked per verifier instructions.
+- param_source_note: rewritten to reflect the new supporting_url and explain the blank.
+
+### Row 112 (Grok-2 mini)
+- supporting_url: Wikipedia -> TechCrunch 2024/08/13. Same reasoning as row 111 — TechCrunch confirms Grok-2 mini shipped "alongside" Grok-2 in beta on Aug 13 2024.
+- context_window: 131072 -> blank. No contemporaneous fetchable source gives a Grok-2 mini token count at release.
+- param_source_note: rewritten.
+
+### Row 113 (Grok-3)
+- context_window: 1000000 -> blank. TechCrunch 2025/02/17 does not mention context size. xAI blog's 1M claim is only visible in a Cloudflare-blocked URL that the verifier cannot fetch; later API-era sources (PromptHub, datastudios.org) document 131K. Blanked per "every numeric claim must appear in the text of at least one of the cited URLs" rule.
+- param_source_note: updated to explain the blank.
+
+### Row 114 (Grok-3 Think)
+- context_window: 1000000 -> blank. Same reasoning as row 113.
+- param_source_note: updated.
+
+### Row 115 (Grok-3 mini)
+- context_window: 1000000 -> blank. Same reasoning as row 113.
+- param_source_note: updated.
+
+### Row 116 (Grok-3 mini Think)
+- context_window: 1000000 -> blank. Same reasoning as row 113.
+- param_source_note: updated.
+
+### Row 117 (Grok-4)
+- supporting_url: data.x.ai/2025-08-20-grok-4-model-card.pdf (binary PDF, unreadable by verifier) -> https://openrouter.ai/x-ai/grok-4 (HTML, 200). OpenRouter page explicitly documents "Released Jul 9, 2025", "256,000 context", and "supports parallel tool calling, structured outputs, and both image and text inputs" — single source covering release date, context window, vision input, and tool use.
+- cap_vision: false -> true. OpenRouter states Grok-4 "supports...both image and text inputs"; TechCrunch separately corroborates ("can analyze images and respond to questions"). Native image input at release confirmed.
+- context_window: 256000 kept (now backed by OpenRouter).
+- param_source_note: rewritten to cite OpenRouter specifics.
+
+### Row 118 (Grok-4 Heavy)
+- context_window: 256000 -> blank. TechCrunch supporting_url (which covers the Heavy-specific multi-agent framing, $300/mo tier, and July 9 date) does not state a token count. Keeping TechCrunch (more load-bearing for Heavy-specific claims) and blanking context_window per verifier rule. Secondary sources (aitoolapp.com/grok-4/context-window) do confirm Heavy uses the 256K window but using them would force dropping TechCrunch, which is more valuable for the multi-agent/pricing/date attestation.
+- cap_vision: false -> true. TechCrunch confirms "can analyze images and respond to questions" (shared Grok-4 base capability); Heavy inherits image input from base.
+- param_source_note: updated.
+
+### Row 119 (Grok-4 Fast)
+- cap_reasoning: already true in file (verifier appears to have miscounted columns when flagging). Left as true and clarified the note: Simon Willison's "same model weights handle reasoning and non-reasoning based on a parameter passed to the model" supports cap_reasoning=true since reasoning is a native (toggleable) mode in the same weights.
+- param_source_note: reworded to make the "togglable reasoning => cap_reasoning=true" reasoning explicit.
+
+### Row 122 (Grok-4.20)
+- supporting_url: NextBigFuture -> https://www.adwaitx.com/grok-4-20-beta-release-date-xai-launch/ . Adwaitx article states "Grok 4.20 Beta launched on February 17, 2026" and documents 256K base context expandable to 2M, the 4-agent collaboration architecture, and rapid-learning weekly cadence — stronger contemporaneous attestation of the Feb 17 date than NextBigFuture, which was looser on specifics.
+- announcement_date: kept 2026-02-17. docs.x.ai release-notes says "March 2026", but that marks the general-availability rollout; first public announcement / beta launch was Feb 17 2026 per Adwaitx (confirmed via WebFetch) and corroborated by Wikipedia's versions-table entry. announcement_date semantics = "first public announcement", so Feb 17 stands.
+- param_source_note: rewritten to explain the Feb-vs-March distinction explicitly so the verifier does not re-flag it.
+
+### Unchanged FAILs (none)
+All hard FAILs resolved. Remaining PARTIALs (context_window blanks on rows 110-116 and 118) converted to properly attributed blanks per the "blank rather than unverifiable" principle. No items left unresolved.
