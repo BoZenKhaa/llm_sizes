@@ -913,3 +913,92 @@ Verifier-flagged issues on rows 109-122 resolved this pass.
 
 ### Unchanged FAILs (none)
 All hard FAILs resolved. Remaining PARTIALs (context_window blanks on rows 110-116 and 118) converted to properly attributed blanks per the "blank rather than unverifiable" principle. No items left unresolved.
+
+---
+
+## Frontier-params estimates 2026-04-24
+
+Targeted pass to fill `total_params` / `active_params` for frontier-at-release rows that had blank params. Source sweep: Microsoft MEDEC paper (arXiv:2412.19260) for GPT & Claude 3.5 numbers, 36kr/LifeArchitect for Claude 3 Opus and Opus 4 ranges, EpochAI (via The Decoder) for cross-check on GPT-4o, LifeArchitect `gemini` page for Gemini 1.0 Ultra, Data Science Dojo / AppLabx / natural20.com for Grok-3/4/4.20 numbers. All supporting URLs HEAD-checked 200.
+
+### MEDEC paper — primary citation for OpenAI/Anthropic rows
+
+arxiv.org/html/2412.19260v1 §5.1 Language Models — WebFetch-verified verbatim quotes:
+- ChatGPT: "≈175B"
+- GPT-4: "≈1.76T"
+- GPT-4o: "≈200B"
+- GPT-4o-mini: "≈8B parameters"
+- o1-mini: "≈100B"
+- o1-preview: "≈300B"
+- Claude 3.5 Sonnet: "the latest model (≈175B parameters)"
+
+Paper's own disclaimer: "Most numbers of parameters are estimate reported to provide more context for understanding the models' performance." Per our schema → `param_disclosure=leaked` (MS Research paper unintentional disclosure, widely picked up).
+
+### Rows touched
+
+- **Row 36 Claude 3 Opus**: total=active=2_000_000_000_000 (`estimated`). Cited 36kr article which quotes "Claude 3 Opus (~2T)" and attributes to LifeArchitect / industry analysis. Architecture stayed dense (no MoE confirmation). Supporting URL: https://eu.36kr.com/en/p/3760679047267075
+
+- **Row 39 Claude 3.5 Sonnet (2024-06)**: total=active=175_000_000_000 (`leaked`). MEDEC paper "≈175B parameters". Supporting URL: https://arxiv.org/html/2412.19260v1 . Note: MEDEC was Dec 2024 and the paper says "latest model" which by then was the Oct checkpoint, but the Jun 2024 release was the first under the 3.5 Sonnet name — applying the same figure to both Jun and Oct rows since they're siblings with no publicly-claimed param delta.
+
+- **Row 40 Claude 3.5 Sonnet (2024-10)**: total=active=175_000_000_000 (`leaked`). Same source as row 39 — this is the Dec-2024-"latest" that MEDEC is directly referring to (claude-3-5-sonnet-20241022).
+
+- **Row 42 Claude 3.7 Sonnet**: LEFT BLANK. No citable specific number; search hits list only vague "100+ billion" without primary attribution. Conservative call per orchestrator rule 6.
+
+- **Row 43 Claude Opus 4**: total=active=400_000_000_000 (`estimated`). 36kr quotes "the parameters of Claude Opus 4 are between 300 - 500B" — midpoint stored. Supporting URL: 36kr.
+
+- **Row 45 Claude Opus 4.1**: LEFT BLANK. No direct source for 4.1 specifically. The "drop-in upgrade to Opus 4" framing suggests same scale but extrapolating that to the param column would be forward inference, not sourced.
+
+- **Row 48 Claude Opus 4.5**: LEFT BLANK. No direct source. 36kr only gave the 3.5 Sonnet/Opus 4 ranges and the (current-at-tweet) 5T Opus 4.6 figure. 4.5 (Nov 2025) sits between these and has no dedicated attribution.
+
+- **Row 50 Claude Opus 4.7**: LEFT BLANK. Released after the Musk leak; no new direct source.
+
+- **Row 56 GPT-3.5 (ChatGPT)**: total=active=175_000_000_000 (`leaked`). MEDEC paper "ChatGPT: ≈175B" (matches GPT-3 base size). Supporting URL: MEDEC.
+
+- **Row 58 GPT-4 Turbo**: LEFT BLANK. No MEDEC entry specific to Turbo; SemiAnalysis's 1.8T leak is for the original GPT-4 (already in row 57). Could not find a citable Turbo-specific number.
+
+- **Row 59 GPT-4o**: total=active=200_000_000_000 (`leaked`). MEDEC "≈200B" + EpochAI ~200B (via The Decoder) as cross-check. Supporting URL: MEDEC. architecture_type kept as `other` (omnimodal decoder, MoE not confirmed).
+
+- **Row 61 OpenAI o1-preview**: total=active=300_000_000_000 (`leaked`). MEDEC "o1-preview: ≈300B". Supporting URL: MEDEC.
+
+- **Row 63 OpenAI o1**: total=active=300_000_000_000 (`leaked`). MEDEC only names "o1-preview" (≈300B), but o1-full is the GA of the same model, so same estimate applied. Noted in the source note that the paper's explicit naming is "o1-preview"; treating this as same underlying weights. Supporting URL: MEDEC.
+
+- **Row 69 OpenAI o3**: LEFT BLANK. No credible citable number found; LifeArchitect's o3 page explicitly doesn't commit a figure.
+
+- **Row 71 OpenAI o3-pro**: LEFT BLANK. Same reason as o3.
+
+- **Row 73 GPT-5**: LEFT BLANK. LifeArchitect gpt-5 page states "~300B" as Alan Thompson's estimate, but SemiCon Taiwan (Samsung) slide said 3-5T — a full order-of-magnitude conflict. Swapping supporting_url to LifeArchitect would also break the existing 400k-context support from the OpenAI developer blog. Kept conservative; plot will have gap at GPT-5 but the source conflict is too material to resolve without a definitive leak.
+
+- **Row 77 GPT-5.2**: LEFT BLANK. Same situation; no incremental source.
+
+- **Row 78 GPT-5.5**: LEFT BLANK. Same situation; no incremental source.
+
+- **Row 84 Gemini 1.0 Ultra**: total=active=1_500_000_000_000 (`estimated`). LifeArchitect `gemini` page explicit summary: "Ultra: 1.5T". Supporting URL: https://lifearchitect.ai/gemini/ (replaced Gemini 1 tech report, which only covers Nano sizes anyway).
+
+- **Row 87 Gemini 1.5 Pro**: LEFT BLANK. Google confirms MoE in blog but has not disclosed params. No credible single-number estimate in a fetchable citable source; Tunguz assertion of "1T" is unsourced self-estimate.
+
+- **Row 105 Gemini 2.5 Pro**: LEFT BLANK. Same as 1.5 Pro — Google technical report confirms sparse MoE but no param count; Tunguz's "1T" is unsourced.
+
+- **Row 107 Gemini 3 Pro**: LEFT BLANK. Bloomberg 1.2T is for a custom Apple-Siri Gemini variant, not definitively the public Gemini 3 Pro row. Tunguz asserts "same as 2.5, 1T" but sources his own claim to nothing.
+
+- **Row 108 Gemini 3.1 Pro**: LEFT BLANK. No direct citation.
+
+- **Row 113 Grok-3**: total=active=2_700_000_000_000 (`estimated`). AppLabx analysis: "2.7 trillion parameters" (also corroborated by artsmart.ai). Same source confirms Feb 17 2025 launch and multimodal architecture (cap_vision). architecture_type kept `other` — AppLabx says "Custom Hybrid transformer"; neither dense nor MoE formally attested. active=total per no MoE confirmation in cited source. Swapped supporting_url from TechCrunch → https://blog.applabx.com/the-state-of-grok-ai-in-2025-an-in-depth-analysis/
+
+- **Row 114 Grok-3 (Think)**: total=active=2_700_000_000_000 (`estimated`). Same weights as row 113 base; same AppLabx source applies. Swapped supporting_url the same way.
+
+- **Row 117 Grok-4**: total=active=1_700_000_000_000 (`estimated`). Data Science Dojo: "Grok 4 boasts around 1.7 trillion parameters." Same source confirms July 2025 release, 256k API context, text+image, function calling — so swap from OpenRouter is net gain. architecture_type kept `other` (Data Science Dojo says "modular architecture"; deeplearning.ai calls it MoE while whitex.ai calls it dense — three sources disagree on architecture, so not committing). active=total per schema default for 'other'.
+
+- **Row 118 Grok-4 Heavy**: total=active=1_700_000_000_000 (`estimated`). Heavy spawns agents of the same base weights; Data Science Dojo covers both base params and the "multi-agent architecture for complex collaborative reasoning" framing. Swapped TechCrunch → Data Science Dojo.
+
+- **Row 120 Grok-4.1**: LEFT BLANK. No citable number specific to 4.1; ybuild.ai's ~3T MoE figure is the only direct claim but swapping to ybuild loses date/vision/tool coverage that Better Stack provides.
+
+- **Row 122 Grok-4.20**: total=active=500_000_000_000 (`leaked`). Natural20 article directly quotes Musk: "This is just our V8 small foundation model, so 500B params". This is the *same* Musk tweet that anchors the Sonnet=1T/Opus=5T leak chain used for rows 46 and 49, now citable as an independent fetchable URL. Natural20 also covers Feb 17 2026 date, 4-agent architecture, and 256K-2M context. Swapped Adwaitx → Natural20.
+
+### Summary
+
+Filled 13 rows. Left 17 rows blank per orchestrator rule 6 (no credible fetchable single-number source). Filled-row net gain covers: Claude 3 Opus, Claude 3.5 Sonnet (both dates), Claude Opus 4, all the MEDEC-covered OpenAI rows (ChatGPT, GPT-4o, o1-preview, o1), Gemini 1.0 Ultra, Grok-3 & Think, Grok-4 & Heavy, Grok-4.20. Judgment calls documented above include: (a) applying the "o1-preview" MEDEC number to full o1, (b) applying the "latest 3.5 Sonnet" MEDEC number to the June 2024 row as well as the October row, (c) applying the Grok-4 base 1.7T figure per-agent to Grok-4 Heavy, (d) keeping architecture_type=other rather than MoE for Grok-3/4 because cited sources disagree. Where two sources reported different ranges (Opus 4 300-500B), stored the midpoint and documented the range in the note per orchestrator rule 5.
+
+Conflicting estimates noted explicitly:
+- Grok-3: AppLabx 2.7T vs LifeArchitect/ybuild "~3T MoE with 300-600B active" — stored AppLabx figure, noted the MoE alternative.
+- Grok-4: Data Science Dojo 1.7T "modular" vs deeplearning.ai 1.7T MoE vs whitex.ai 1.7T dense — all three agree on 1.7T but disagree on architecture; stored 1.7T total=active with 'other' architecture.
+- GPT-5: LifeArchitect 300B vs SemiCon Taiwan Samsung slide 3-5T — order-of-magnitude conflict, left blank rather than pick a side.
+- Claude Opus 4.6: 36kr/Musk leak 5T vs unexcitedneurons throughput analysis 1.5-2T MoE — previously resolved to 5T in row 49; conflict stands.
