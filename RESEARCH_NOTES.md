@@ -1002,3 +1002,7 @@ Conflicting estimates noted explicitly:
 - Grok-4: Data Science Dojo 1.7T "modular" vs deeplearning.ai 1.7T MoE vs whitex.ai 1.7T dense — all three agree on 1.7T but disagree on architecture; stored 1.7T total=active with 'other' architecture.
 - GPT-5: LifeArchitect 300B vs SemiCon Taiwan Samsung slide 3-5T — order-of-magnitude conflict, left blank rather than pick a side.
 - Claude Opus 4.6: 36kr/Musk leak 5T vs unexcitedneurons throughput analysis 1.5-2T MoE — previously resolved to 5T in row 49; conflict stands.
+
+## Mythos re-population 2026-04-24
+
+User directive: restore the 10T figure now that speculative sources are accepted. Found a citable Medium article — "Claude Mythos 5: The First 10-Trillion-Parameter Model" (Analyst Uttam, Apr 5 2026) — that directly quotes "a staggering 10 trillion parameters" and attributes it to the late-March Anthropic CMS misconfiguration leak. Replaced interconnects.ai supporting_url (which had explicitly disclaimed architectural knowledge) with the Medium URL. param_disclosure=estimated (analyst estimate, not a direct Anthropic disclosure). Also flipped frontier_at_release from false to true — at 10T Mythos is a clear frontier data point above Opus 4.6's 5T. Note: check-urls HEAD returns 403 on Medium (similar to openai.com/x.ai pattern), but WebFetch via browser UA succeeds; the 403 on HEAD does not indicate a dead link.
