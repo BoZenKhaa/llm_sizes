@@ -160,6 +160,12 @@ later in October 2024" → `cap_vision=false` at the August launch row.
 - `scripts/plot_params.py` — generates `frontier_params.png`,
   `open_params.png`, `frontier_and_open_params.png` (the third with
   log-linear trend lines fit through each group).
+- `scripts/plot_params_interactive.py` — generates
+  `frontier_and_open_params.html`, an interactive plotly version of the
+  combined plot. Hover for a quick summary; click any point to populate
+  a side panel with that model's capabilities and source links. Run with
+  `uv run scripts/plot_params_interactive.py` (deps declared inline via
+  PEP 723).
 - `scripts/plot_frontier.py` — original frontier-only plotting script.
 - `src/llm_sizes_tools/` — `csv-row` and `check-urls` helpers; see
   `CLAUDE.md` for the full workflow.

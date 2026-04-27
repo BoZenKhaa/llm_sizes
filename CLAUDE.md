@@ -4,6 +4,20 @@ Read `PLAN.md` for schema and scope and `STATUS.md` for lab-by-lab progress.
 This file captures harness conventions so the orchestrator and subagents
 don't reinvent workflows each run.
 
+## Python execution
+
+Always run Python through `uv` — never use a bare `python3` / `python`
+or assume packages are importable from the system interpreter. Examples:
+
+- Run a script with inline PEP 723 deps:
+  `uv run --with matplotlib --with plotly scripts/plot_params.py`
+- Run a project entry point: `uv run csv-row 5`
+- Ad-hoc one-liner: `uv run --with plotly python -c "..."`
+
+The project's `.venv` only contains the local `llm_sizes_tools` package;
+plotting deps (matplotlib, plotly, adjustText, numpy) are pulled in
+on-demand by `uv run --with ...` or via PEP 723 headers in the scripts.
+
 ## Project helpers
 
 Two `uv run` entry points live in `src/llm_sizes_tools/`. Use them instead
