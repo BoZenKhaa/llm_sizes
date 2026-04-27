@@ -5,6 +5,10 @@ era (2018 → present), curated from primary sources (lab blogs, papers, model
 cards, system cards), with leaked/estimated counts marked separately and
 plotting scripts that read directly from the CSV.
 
+**Live interactive chart:** <https://bozenkhaa.github.io/llm_sizes/>
+
+[![Frontier and open-weight frontier LLM parameter counts](frontier_and_open_params.png)](https://bozenkhaa.github.io/llm_sizes/)
+
 Operational details and the per-lab researcher/verifier workflow live in
 `CLAUDE.md`. The full column schema and source-priority research methodology
 live in `PLAN.md`. Lab-by-lab progress lives in `STATUS.md`.
@@ -165,7 +169,7 @@ later in October 2024" → `cap_vision=false` at the August launch row.
   combined plot. Hover for a quick summary; click any point to populate
   a side panel with that model's capabilities and source links. Run with
   `uv run scripts/plot_params_interactive.py` (deps declared inline via
-  PEP 723).
+  PEP 723). Live at <https://bozenkhaa.github.io/llm_sizes/>.
 - `scripts/plot_frontier.py` — original frontier-only plotting script.
 - `src/llm_sizes_tools/` — `csv-row` and `check-urls` helpers; see
   `CLAUDE.md` for the full workflow.
