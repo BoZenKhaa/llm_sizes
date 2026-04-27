@@ -181,14 +181,14 @@ def build_scatter(rows: list[dict], *, hollow: bool, name: str) -> go.Scatter:
     if hollow:
         marker = dict(
             symbol=symbols,
-            size=12,
+            size=14,
             color=colors,
             line=dict(width=2, color=colors),
         )
     else:
         marker = dict(
             symbol=symbols,
-            size=11,
+            size=13,
             color=colors,
             line=dict(width=0.6, color="black"),
         )
@@ -301,6 +301,7 @@ PAGE_TEMPLATE = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LLM parameter counts — interactive</title>
 <style>
   :root {{ --border:#e1e4e8; --muted:#6b7280; --accent:#1f6feb; }}
@@ -436,7 +437,13 @@ def main() -> None:
         include_plotlyjs="cdn",
         full_html=False,
         div_id=chart_div_id,
-        config={"responsive": True, "displaylogo": False},
+        config={
+            "responsive": True,
+            "displaylogo": False,
+            "displayModeBar": True,
+            "scrollZoom": True,
+            "modeBarButtonsToRemove": ["lasso2d", "select2d"],
+        },
     )
 
     page = PAGE_TEMPLATE.format(
