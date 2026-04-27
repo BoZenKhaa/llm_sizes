@@ -207,6 +207,48 @@ def build_scatter(rows: list[dict], *, hollow: bool, name: str) -> go.Scatter:
     )
 
 
+def compute_takeaways(frontier: list[dict], open_rows: list[dict]) -> dict:
+    """Stats for the headline takeaway paragraph.
+
+    `lag_years` measures the horizontal distance between the two trend lines:
+    at the mean announcement year across both groups, how many years later
+    does the open-weight trend reach the same log10(params) the frontier
+    trend predicts? Positive values mean open-weight trails the frontier.
+    """
+    cf, doubling_f = fit_loglinear(frontier)
+    co, doubling_o = fit_loglinear(open_rows)
+    all_years = ([decimal_year(r["date"]) for r in frontier]
+                 + [decimal_year(r["date"]) for r in open_rows])
+    eval_year = sum(all_years) / len(all_years)
+    log_p = float(np.polyval(cf, eval_year))
+    open_year = (log_p - co[1]) / co[0]
+    return {
+        "doubling_yr_frontier": doubling_f,
+        "doubling_yr_open": doubling_o,
+        "doubling_mo_frontier": round(doubling_f * 12),
+        "doubling_mo_open": round(doubling_o * 12),
+        "lag_years": float(open_year - eval_year),
+    }
+
+
+def render_takeaways(t: dict) -> str:
+    return (
+        '<div class="takeaways">'
+        '<strong>Key takeaways:</strong>'
+        '<ul>'
+        f'<li>Frontier-model parameter counts are '
+        f'<strong>doubling every ~{t["doubling_mo_frontier"]} months</strong> '
+        f'(~{t["doubling_yr_frontier"]:.2f} years).</li>'
+        f'<li>Open-weight models grow at roughly the same pace '
+        f'(doubling every ~{t["doubling_mo_open"]} months) but '
+        f'<strong>lag behind the closed-weight frontier by '
+        f'~{t["lag_years"]:.1f} years</strong> in reaching equivalent '
+        f'parameter scale.</li>'
+        '</ul>'
+        '</div>'
+    )
+
+
 def build_trend(rows: list[dict], all_rows: list[dict], *, name: str,
                 color: str) -> tuple[go.Scatter, str]:
     coeffs, doubling = fit_loglinear(rows)
@@ -312,6 +354,11 @@ PAGE_TEMPLATE = """<!doctype html>
             background:#fff; }}
   header h1 {{ margin:0 0 4px; font-size:18px; }}
   header p  {{ margin:0; color:var(--muted); font-size:13px; }}
+  .takeaways {{ margin:12px 0 10px; padding:10px 14px;
+                background:#eef2ff; border-left:4px solid #6366f1;
+                border-radius:4px; font-size:13.5px; color:#1e1b4b; }}
+  .takeaways ul {{ margin:4px 0 0; padding-left:20px; }}
+  .takeaways li {{ line-height:1.55; margin:2px 0; }}
   .layout {{ display:flex; flex-direction:column; gap:16px;
              padding:16px 24px; }}
   #chart-wrap {{ background:#fff; border:1px solid var(--border);
@@ -359,6 +406,7 @@ PAGE_TEMPLATE = """<!doctype html>
 <body>
 <header>
   <h1>Frontier &amp; open-weight frontier LLM parameter counts</h1>
+  {takeaways_html}
   <p>Click any point to see its capabilities and source links.
      Drag to zoom; double-click to reset. Toggle traces using the
      legend below the chart.</p>
@@ -476,16 +524,22 @@ def main() -> None:
         },
     )
 
+    takeaways = compute_takeaways(frontier, open_rows)
     page = PAGE_TEMPLATE.format(
         chart_div=chart_div,
         chart_div_id_json=json.dumps(chart_div_id),
         org_legend=render_org_legend(),
         disclosure_legend=render_disclosure_legend(),
+        takeaways_html=render_takeaways(takeaways),
     )
 
     OUT_PATH.write_text(page, encoding="utf-8")
-    print(f"Wrote {OUT_PATH}  "
-          f"(frontier n={len(frontier)}, open n={len(open_rows)})")
+    print(
+        f"Wrote {OUT_PATH}  "
+        f"(frontier n={len(frontier)}, open n={len(open_rows)}, "
+        f"frontier ×2 every {takeaways['doubling_yr_frontier']:.2f} yr, "
+        f"open lag ≈ {takeaways['lag_years']:.2f} yr)"
+    )
 
 
 if __name__ == "__main__":

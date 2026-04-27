@@ -13,6 +13,11 @@
             background:#fff; }
   header h1 { margin:0 0 4px; font-size:18px; }
   header p  { margin:0; color:var(--muted); font-size:13px; }
+  .takeaways { margin:12px 0 10px; padding:10px 14px;
+                background:#eef2ff; border-left:4px solid #6366f1;
+                border-radius:4px; font-size:13.5px; color:#1e1b4b; }
+  .takeaways ul { margin:4px 0 0; padding-left:20px; }
+  .takeaways li { line-height:1.55; margin:2px 0; }
   .layout { display:flex; flex-direction:column; gap:16px;
              padding:16px 24px; }
   #chart-wrap { background:#fff; border:1px solid var(--border);
@@ -60,6 +65,7 @@
 <body>
 <header>
   <h1>Frontier &amp; open-weight frontier LLM parameter counts</h1>
+  <div class="takeaways"><strong>Key takeaways:</strong><ul><li>Frontier-model parameter counts are <strong>doubling every ~10 months</strong> (~0.83 years).</li><li>Open-weight models grow at roughly the same pace (doubling every ~10 months) but <strong>lag behind the closed-weight frontier by ~1.9 years</strong> in reaching equivalent parameter scale.</li></ul></div>
   <p>Click any point to see its capabilities and source links.
      Drag to zoom; double-click to reset. Toggle traces using the
      legend below the chart.</p>
