@@ -215,8 +215,7 @@ def build_trend(rows: list[dict], all_rows: list[dict], *, name: str,
                         decimal_year(max(all_dates))])
     ys = 10 ** np.polyval(coeffs, xs_year)
     x_dates = [from_decimal_year(x) for x in xs_year]
-    label = (f"{name}: ×2 every {doubling:.2f} yr "
-             f"(slope={coeffs[0]:+.3f} log₁₀(params)/yr)")
+    label = f"{name} (×2 every {doubling:.2f} yr)"
     trace = go.Scatter(
         x=x_dates, y=ys, mode="lines",
         name=label,
@@ -257,6 +256,7 @@ def build_figure(frontier: list[dict], open_rows: list[dict]) -> go.Figure:
                    showgrid=True, gridcolor="rgba(0,0,0,0.08)"),
         legend=dict(orientation="h", x=0.5, y=-0.18, xanchor="center",
                     yanchor="top",
+                    entrywidth=210, entrywidthmode="pixels",
                     bgcolor="rgba(255,255,255,0.85)"),
         hoverlabel=dict(bgcolor="white", font_size=12,
                         bordercolor="#999"),
@@ -316,6 +316,15 @@ PAGE_TEMPLATE = """<!doctype html>
              padding:16px 24px; }}
   #chart-wrap {{ background:#fff; border:1px solid var(--border);
                  border-radius:6px; padding:8px; }}
+  .chart-tools {{ display:flex; justify-content:flex-end; gap:8px; }}
+  .chart-tools button {{ font:inherit; font-size:12px; cursor:pointer;
+                          background:#fff; border:1px solid var(--border);
+                          border-radius:6px; padding:6px 12px;
+                          color:#1f2328; }}
+  .chart-tools button:hover {{ background:#f3f4f6; }}
+  .chart-tools button[aria-pressed="true"] {{ background:#eef2ff;
+                                                border-color:#c7d2fe;
+                                                color:#3730a3; }}
   .cards-row {{ display:grid; grid-template-columns: 1fr 1fr 2fr;
                 gap:16px; }}
   @media (max-width: 900px) {{
@@ -355,6 +364,12 @@ PAGE_TEMPLATE = """<!doctype html>
      legend below the chart.</p>
 </header>
 <div class="layout">
+  <div class="chart-tools">
+    <button id="toggle-labels" type="button" aria-pressed="true"
+            title="Show or hide model name labels on the chart">
+      Hide model labels
+    </button>
+  </div>
   <div id="chart-wrap">{chart_div}</div>
   <div class="cards-row">
     <div class="card" id="info">
@@ -418,6 +433,21 @@ PAGE_TEMPLATE = """<!doctype html>
       renderPoint(data.points[0].customdata);
     }}
   }});
+
+  const toggleBtn = document.getElementById('toggle-labels');
+  if (toggleBtn) {{
+    toggleBtn.addEventListener('click', () => {{
+      const visible = toggleBtn.getAttribute('aria-pressed') === 'true';
+      const next = !visible;
+      // traces 0 and 1 are the two scatter traces (open + frontier);
+      // traces 2 and 3 are the trend lines and stay 'lines'
+      Plotly.restyle(div,
+        {{ mode: next ? 'markers+text' : 'markers' }},
+        [0, 1]);
+      toggleBtn.setAttribute('aria-pressed', String(next));
+      toggleBtn.textContent = next ? 'Hide model labels' : 'Show model labels';
+    }});
+  }}
 }})();
 </script>
 </body>
