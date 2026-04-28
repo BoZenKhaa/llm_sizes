@@ -81,6 +81,27 @@ def fmt_params(n: float) -> str:
     return f"{n:.0f}"
 
 
+# Power-of-two context lengths get binary labels (64k for 65536); decimal-round
+# values like 200k or 1M get decimal labels.
+_BINARY_CTX = {8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576}
+
+
+def fmt_context(raw: str) -> str:
+    if not raw or not raw.strip():
+        return "—"
+    try:
+        n = int(raw)
+    except ValueError:
+        return raw
+    if n in _BINARY_CTX:
+        return f"{n // 1024}k tokens"
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.0f}M tokens"
+    if n >= 1000:
+        return f"{round(n / 1000)}k tokens"
+    return f"{n} tokens"
+
+
 def decimal_year(d: date) -> float:
     start = date(d.year, 1, 1).toordinal()
     end = date(d.year + 1, 1, 1).toordinal()
@@ -116,7 +137,7 @@ def load_rows() -> list[dict]:
                                   if r.get("active_params") else None),
                 "disclosure": r["param_disclosure"] or "unknown",
                 "architecture": r.get("architecture_type", "") or "—",
-                "context_window": r.get("context_window", "") or "—",
+                "context_window": fmt_context(r.get("context_window", "")),
                 "open_weights": r.get("open_weights", "").lower() == "true",
                 "capabilities": caps,
                 "release_url": r.get("release_url", "") or "",
@@ -139,16 +160,21 @@ def fit_loglinear(rows: list[dict]) -> tuple[np.ndarray, float]:
 
 def make_customdata(r: dict) -> list:
     """Per-point payload consumed by the click handler in JS."""
+    params_str = fmt_params(r["params"])
+    if r["active_params"] and r["active_params"] < r["params"]:
+        params_str = f"{params_str} · {fmt_params(r['active_params'])} active"
     return [
         r["name"],
         r["org"],
         r["date"].isoformat(),
-        fmt_params(r["params"]),
+        params_str,
         r["disclosure"],
         r["architecture"],
         ", ".join(r["capabilities"]) or "—",
         r["release_url"],
         r["supporting_url"],
+        r["context_window"],
+        "open weights" if r["open_weights"] else "closed weights",
     ]
 
 
@@ -157,9 +183,10 @@ def hover_template() -> str:
         "<b>%{customdata[0]}</b><br>"
         "%{customdata[1]} · %{customdata[2]}<br>"
         "Params: %{customdata[3]} (%{customdata[4]})<br>"
-        "Architecture: %{customdata[5]}<br>"
+        "Architecture: %{customdata[5]} · %{customdata[10]}<br>"
+        "Context: %{customdata[9]}<br>"
         "Capabilities: %{customdata[6]}<br>"
-        "<i>click for source links</i>"
+        "<i>click for details</i>"
         "<extra></extra>"
     )
 
@@ -194,7 +221,7 @@ def build_scatter(rows: list[dict], *, hollow: bool, name: str) -> go.Scatter:
         )
     names = [r["name"] for r in rows]
     return go.Scatter(
-        x=xs, y=ys, mode="markers+text",
+        x=xs, y=ys, mode="markers",
         name=name,
         marker=marker,
         text=names,
@@ -234,38 +261,36 @@ def compute_takeaways(frontier: list[dict], open_rows: list[dict]) -> dict:
 def render_takeaways(t: dict) -> str:
     return (
         '<div class="takeaways">'
-        '<strong>Key takeaways:</strong>'
+        '<strong>Main findings:</strong>'
         '<ul>'
         f'<li>Frontier-model parameter counts are '
         f'<strong>doubling every ~{t["doubling_mo_frontier"]} months</strong> '
         f'(~{t["doubling_yr_frontier"]:.2f} years).</li>'
-        f'<li>Open-weight models grow at roughly the same pace '
+        f'<li>Open-weight models grow at the same pace '
         f'(doubling every ~{t["doubling_mo_open"]} months) but '
-        f'<strong>lag behind the closed-weight frontier by '
-        f'~{t["lag_years"]:.1f} years</strong> in reaching equivalent '
-        f'parameter scale.</li>'
+        f'<strong>their size is behind the closed-weight frontier by '
+        f'~{t["lag_years"]:.1f} years</strong>.</li>'
         '</ul>'
         '</div>'
     )
 
 
 def build_trend(rows: list[dict], all_rows: list[dict], *, name: str,
-                color: str) -> tuple[go.Scatter, str]:
-    coeffs, doubling = fit_loglinear(rows)
+                color: str, dash: str = "dash") -> tuple[go.Scatter, str]:
+    coeffs, _doubling = fit_loglinear(rows)
     all_dates = [r["date"] for r in all_rows]
     xs_year = np.array([decimal_year(min(all_dates)),
                         decimal_year(max(all_dates))])
     ys = 10 ** np.polyval(coeffs, xs_year)
     x_dates = [from_decimal_year(x) for x in xs_year]
-    label = f"{name} (×2 every {doubling:.2f} yr)"
     trace = go.Scatter(
         x=x_dates, y=ys, mode="lines",
-        name=label,
-        line=dict(color=color, width=2.4, dash="dash"),
+        name=name,
+        line=dict(color=color, width=2.0, dash=dash),
         hoverinfo="skip",
         legendgroup=name,
     )
-    return trace, label
+    return trace, name
 
 
 def build_figure(frontier: list[dict], open_rows: list[dict]) -> go.Figure:
@@ -278,20 +303,15 @@ def build_figure(frontier: list[dict], open_rows: list[dict]) -> go.Figure:
 
     all_rows = frontier + open_rows
     trend_open, _ = build_trend(open_rows, all_rows,
-                                name="Open-weight trend", color="#10a37f")
+                                name="Open-weight trend",
+                                color="#9ca3af", dash="dash")
     trend_front, _ = build_trend(frontier, all_rows,
-                                 name="Frontier trend", color="#d97757")
+                                 name="Frontier trend",
+                                 color="#374151", dash="dash")
     fig.add_trace(trend_open)
     fig.add_trace(trend_front)
 
     fig.update_layout(
-        title=dict(
-            text=("Frontier and open-weight frontier LLM parameter counts<br>"
-                  "<sub>solid markers = frontier_at_release · "
-                  "hollow markers = frontier_open_at_release · "
-                  "click a point for capabilities &amp; source links</sub>"),
-            x=0.5, xanchor="center",
-        ),
         xaxis=dict(title="Announcement date", showgrid=True,
                    gridcolor="rgba(0,0,0,0.08)"),
         yaxis=dict(title="Total parameters (log scale)", type="log",
@@ -303,15 +323,17 @@ def build_figure(frontier: list[dict], open_rows: list[dict]) -> go.Figure:
         hoverlabel=dict(bgcolor="white", font_size=12,
                         bordercolor="#999"),
         plot_bgcolor="white",
-        margin=dict(l=70, r=40, t=90, b=140),
-        height=760,
+        margin=dict(l=70, r=40, t=20, b=140),
+        height=720,
     )
     return fig
 
 
-def render_org_legend() -> str:
+def render_org_legend(orgs_present: set[str]) -> str:
     items = []
     for org, color in ORG_COLORS.items():
+        if org not in orgs_present:
+            continue
         items.append(
             f'<li><span class="swatch" style="background:{color}"></span>'
             f'{html.escape(org)}</li>'
@@ -322,18 +344,23 @@ def render_org_legend() -> str:
 def render_disclosure_legend() -> str:
     # Tiny inline SVG glyphs that mirror the plotly markers.
     glyphs = {
-        "official":  '<circle cx="9" cy="9" r="5" fill="#555" />',
-        "leaked":    '<rect x="4" y="4" width="10" height="10" fill="#555" />',
-        "estimated": '<polygon points="9,3 15,14 3,14" fill="#555" />',
-        "unknown":   ('<line x1="4" y1="4" x2="14" y2="14" '
-                      'stroke="#555" stroke-width="2" />'
-                      '<line x1="14" y1="4" x2="4" y2="14" '
-                      'stroke="#555" stroke-width="2" />'),
+        "official":  ('<circle cx="9" cy="9" r="5" fill="#555" />',
+                      "filled circle"),
+        "leaked":    ('<rect x="4" y="4" width="10" height="10" fill="#555" />',
+                      "filled square"),
+        "estimated": ('<polygon points="9,3 15,14 3,14" fill="#555" />',
+                      "filled triangle"),
+        "unknown":   (('<line x1="4" y1="4" x2="14" y2="14" '
+                       'stroke="#555" stroke-width="2" />'
+                       '<line x1="14" y1="4" x2="4" y2="14" '
+                       'stroke="#555" stroke-width="2" />'),
+                      "x mark"),
     }
     items = []
-    for disc, glyph in glyphs.items():
+    for disc, (glyph, shape) in glyphs.items():
         items.append(
-            f'<li><svg width="18" height="18" viewBox="0 0 18 18">{glyph}'
+            f'<li><svg width="18" height="18" viewBox="0 0 18 18" '
+            f'role="img" aria-label="{shape}">{glyph}'
             f'</svg>{html.escape(disc)}</li>'
         )
     return "\n".join(items)
@@ -344,7 +371,7 @@ PAGE_TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LLM parameter counts — interactive</title>
+<title>Frontier &amp; open-weight LLM parameter counts</title>
 <style>
   :root {{ --border:#e1e4e8; --muted:#6b7280; --accent:#1f6feb; }}
   * {{ box-sizing: border-box; }}
@@ -363,13 +390,13 @@ PAGE_TEMPLATE = """<!doctype html>
              padding:16px 24px; }}
   #chart-wrap {{ background:#fff; border:1px solid var(--border);
                  border-radius:6px; padding:8px; }}
-  .chart-tools {{ display:flex; justify-content:flex-end; gap:8px; }}
-  .chart-tools button {{ font:inherit; font-size:12px; cursor:pointer;
+  header button.toggle {{ font:inherit; font-size:12px; cursor:pointer;
                           background:#fff; border:1px solid var(--border);
-                          border-radius:6px; padding:6px 12px;
-                          color:#1f2328; }}
-  .chart-tools button:hover {{ background:#f3f4f6; }}
-  .chart-tools button[aria-pressed="true"] {{ background:#eef2ff;
+                          border-radius:6px; padding:2px 10px;
+                          color:#1f2328; margin-left:4px;
+                          vertical-align:baseline; }}
+  header button.toggle:hover {{ background:#f3f4f6; }}
+  header button.toggle[aria-pressed="true"] {{ background:#eef2ff;
                                                 border-color:#c7d2fe;
                                                 color:#3730a3; }}
   .cards-row {{ display:grid; grid-template-columns: 1fr 1fr 2fr;
@@ -401,6 +428,11 @@ PAGE_TEMPLATE = """<!doctype html>
   .legend-grid {{ display:grid;
                   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                   gap:6px 14px; }}
+  .footer {{ display:flex; flex-wrap:wrap; gap:8px 18px;
+             justify-content:space-between;
+             padding:0 24px 18px; color:var(--muted); font-size:12px; }}
+  .footer a {{ color:var(--accent); text-decoration:none; }}
+  .footer a:hover {{ text-decoration:underline; }}
 </style>
 </head>
 <body>
@@ -409,15 +441,14 @@ PAGE_TEMPLATE = """<!doctype html>
   {takeaways_html}
   <p>Click any point to see its capabilities and source links.
      Drag to zoom; double-click to reset. Toggle traces using the
-     legend below the chart.</p>
+     legend below the chart.
+     <button id="toggle-labels" class="toggle" type="button"
+             aria-pressed="false"
+             title="Show or hide model name labels on the chart">
+       Show model labels
+     </button></p>
 </header>
 <div class="layout">
-  <div class="chart-tools">
-    <button id="toggle-labels" type="button" aria-pressed="true"
-            title="Show or hide model name labels on the chart">
-      Hide model labels
-    </button>
-  </div>
   <div id="chart-wrap">{chart_div}</div>
   <div class="cards-row">
     <div class="card" id="info">
@@ -439,6 +470,11 @@ PAGE_TEMPLATE = """<!doctype html>
     </div>
   </div>
 </div>
+<footer class="footer">
+  <span>{n_frontier} frontier · {n_open} open-weight · last data point {last_date}</span>
+  <a href="https://github.com/BoZenKhaa/llm_sizes" target="_blank"
+     rel="noopener">github.com/BoZenKhaa/llm_sizes ↗</a>
+</footer>
 <script>
 (function() {{
   const div = document.getElementById({chart_div_id_json});
@@ -449,7 +485,7 @@ PAGE_TEMPLATE = """<!doctype html>
   }}[c]));
   const renderPoint = (cd) => {{
     const [name, org, dateStr, params, disclosure, arch, caps,
-           releaseUrl, supportingUrl] = cd;
+           releaseUrl, supportingUrl, ctx, openWeights] = cd;
     const capChips = caps && caps !== '—'
       ? caps.split(',').map(s => s.trim())
             .filter(Boolean)
@@ -469,7 +505,8 @@ PAGE_TEMPLATE = """<!doctype html>
       <h3>${{escapeHtml(name)}}</h3>
       <div class="meta">${{escapeHtml(org)}} · ${{escapeHtml(dateStr)}}
         · ${{escapeHtml(params)}} (${{escapeHtml(disclosure)}})
-        · ${{escapeHtml(arch)}}</div>
+        · ${{escapeHtml(arch)}} · ${{escapeHtml(openWeights)}}
+        · context ${{escapeHtml(ctx)}}</div>
       <div><strong>Capabilities</strong></div>
       <div class="caps">${{capChips}}</div>
       <div><strong>Sources</strong></div>
@@ -525,12 +562,17 @@ def main() -> None:
     )
 
     takeaways = compute_takeaways(frontier, open_rows)
+    orgs_present = {r["org"] for r in frontier + open_rows}
+    last_date = max(r["date"] for r in frontier + open_rows).isoformat()
     page = PAGE_TEMPLATE.format(
         chart_div=chart_div,
         chart_div_id_json=json.dumps(chart_div_id),
-        org_legend=render_org_legend(),
+        org_legend=render_org_legend(orgs_present),
         disclosure_legend=render_disclosure_legend(),
         takeaways_html=render_takeaways(takeaways),
+        n_frontier=len(frontier),
+        n_open=len(open_rows),
+        last_date=last_date,
     )
 
     OUT_PATH.write_text(page, encoding="utf-8")
