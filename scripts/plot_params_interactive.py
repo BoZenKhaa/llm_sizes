@@ -427,10 +427,11 @@ PAGE_TEMPLATE = """<!doctype html>
                   grid-template-columns: repeat(2, minmax(130px, 1fr));
                   gap:2px 14px; }}
   @media (max-width: 700px) {{
+    #chart-wrap {{ display:flex; flex-direction:column; }}
     .legend-panel {{ position:static; top:auto; right:auto;
                      max-width:none; max-height:none;
-                     box-shadow:none; margin:6px 0 0;
-                     border-radius:6px; }}
+                     box-shadow:none; margin:0 0 6px;
+                     border-radius:6px; order:-1; }}
     .legend-grid {{ grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }}
   }}
   .popover {{ position:absolute; z-index:100; max-width:340px;
@@ -543,8 +544,14 @@ PAGE_TEMPLATE = """<!doctype html>
       <div class="links">${{links.join(' ') || '<span style="color:#6b7280">no URLs on file</span>'}}</div>
     `;
   }};
-  let hoverEnabled = true;
+  const isCoarsePointer = !!(window.matchMedia
+      && window.matchMedia('(hover: none)').matches);
+  let hoverEnabled = !isCoarsePointer;
+  if (isCoarsePointer) {{
+    Plotly.relayout(div, {{hovermode: false}});
+  }}
   const setHoverEnabled = (enabled) => {{
+    if (isCoarsePointer) enabled = false;
     if (hoverEnabled === enabled) return;
     hoverEnabled = enabled;
     Plotly.relayout(div, {{hovermode: enabled ? 'closest' : false}});
