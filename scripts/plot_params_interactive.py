@@ -320,6 +320,7 @@ def build_figure(frontier: list[dict], open_rows: list[dict]) -> go.Figure:
                     yanchor="top",
                     entrywidth=210, entrywidthmode="pixels",
                     bgcolor="rgba(255,255,255,0.85)"),
+        hovermode="closest",
         hoverlabel=dict(bgcolor="white", font_size=12,
                         bordercolor="#999"),
         plot_bgcolor="white",
@@ -388,7 +389,8 @@ PAGE_TEMPLATE = """<!doctype html>
   .takeaways li {{ line-height:1.55; margin:2px 0; }}
   .layout {{ display:flex; flex-direction:column; gap:16px;
              padding:16px 24px; }}
-  #chart-wrap {{ background:#fff; border:1px solid var(--border);
+  #chart-wrap {{ position:relative;
+                 background:#fff; border:1px solid var(--border);
                  border-radius:6px; padding:8px; }}
   header button.toggle {{ font:inherit; font-size:12px; cursor:pointer;
                           background:#fff; border:1px solid var(--border);
@@ -399,7 +401,7 @@ PAGE_TEMPLATE = """<!doctype html>
   header button.toggle[aria-pressed="true"] {{ background:#eef2ff;
                                                 border-color:#c7d2fe;
                                                 color:#3730a3; }}
-  .cards-row {{ display:grid; grid-template-columns: 1fr 1fr 2fr;
+  .cards-row {{ display:grid; grid-template-columns: minmax(220px, 1fr) 2fr;
                 gap:16px; }}
   @media (max-width: 900px) {{
     .cards-row {{ grid-template-columns: 1fr; }}
@@ -409,25 +411,36 @@ PAGE_TEMPLATE = """<!doctype html>
   .card h2 {{ margin:0 0 8px; font-size:14px;
               text-transform:uppercase; letter-spacing:0.04em;
               color:var(--muted); font-weight:600; }}
-  .card h3 {{ margin:0 0 4px; font-size:16px; }}
-  .card .meta {{ color:var(--muted); font-size:12px; margin-bottom:10px; }}
   .card ul {{ list-style:none; padding:0; margin:0; font-size:12px; }}
   .card li {{ display:flex; align-items:center; gap:8px;
               margin:3px 0; line-height:1.4; }}
   .swatch {{ display:inline-block; width:14px; height:14px;
              border-radius:50%; border:1px solid #00000020; }}
-  #info .links a {{ color:var(--accent); text-decoration:none;
-                    margin-right:10px; }}
-  #info .links a:hover {{ text-decoration:underline; }}
-  #info .caps {{ display:flex; flex-wrap:wrap; gap:6px;
-                 margin:6px 0 12px; }}
-  #info .caps span {{ background:#eef2ff; color:#3730a3;
-                      border-radius:12px; padding:2px 10px;
-                      font-size:11px; }}
-  #info .empty {{ color:var(--muted); font-size:13px; }}
   .legend-grid {{ display:grid;
                   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                   gap:6px 14px; }}
+  .popover {{ position:absolute; z-index:100; max-width:340px;
+              background:#fff; border:1px solid #d0d7de;
+              border-radius:8px;
+              box-shadow:0 6px 18px rgba(0,0,0,0.15);
+              padding:12px 14px; font-size:13px; line-height:1.45; }}
+  .popover[hidden] {{ display:none; }}
+  .popover h3 {{ margin:0 0 4px; font-size:15px; padding-right:24px; }}
+  .popover .meta {{ color:var(--muted); font-size:11.5px;
+                    margin-bottom:8px; }}
+  .popover .caps {{ display:flex; flex-wrap:wrap; gap:5px;
+                    margin:5px 0 8px; }}
+  .popover .caps span {{ background:#eef2ff; color:#3730a3;
+                         border-radius:12px; padding:1px 9px;
+                         font-size:11px; }}
+  .popover .links a {{ color:var(--accent); text-decoration:none;
+                       margin-right:10px; font-size:12px; }}
+  .popover .links a:hover {{ text-decoration:underline; }}
+  .popover .close {{ position:absolute; top:4px; right:6px;
+                     background:transparent; border:0; cursor:pointer;
+                     color:var(--muted); font-size:18px; padding:2px 6px;
+                     line-height:1; border-radius:4px; }}
+  .popover .close:hover {{ background:#f3f4f6; color:#111; }}
   .footer {{ display:flex; flex-wrap:wrap; gap:8px 18px;
              justify-content:space-between;
              padding:0 24px 18px; color:var(--muted); font-size:12px; }}
@@ -449,13 +462,11 @@ PAGE_TEMPLATE = """<!doctype html>
      </button></p>
 </header>
 <div class="layout">
-  <div id="chart-wrap">{chart_div}</div>
+  <div id="chart-wrap">
+    {chart_div}
+    <div id="point-popover" class="popover" hidden></div>
+  </div>
   <div class="cards-row">
-    <div class="card" id="info">
-      <h2>Selection</h2>
-      <p class="empty">No point selected yet — click any marker on the
-        chart and its details will appear here.</p>
-    </div>
     <div class="card">
       <h2>Disclosure (marker shape)</h2>
       <ul>
@@ -479,11 +490,12 @@ PAGE_TEMPLATE = """<!doctype html>
 (function() {{
   const div = document.getElementById({chart_div_id_json});
   if (!div) return;
-  const info = document.getElementById('info');
+  const wrap = document.getElementById('chart-wrap');
+  const popover = document.getElementById('point-popover');
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({{
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }}[c]));
-  const renderPoint = (cd) => {{
+  const renderPopover = (cd) => {{
     const [name, org, dateStr, params, disclosure, arch, caps,
            releaseUrl, supportingUrl, ctx, openWeights] = cd;
     const capChips = caps && caps !== '—'
@@ -494,29 +506,86 @@ PAGE_TEMPLATE = """<!doctype html>
     const links = [];
     if (releaseUrl) {{
       links.push(`<a href="${{escapeHtml(releaseUrl)}}" target="_blank" `
-                 + `rel="noopener">release announcement ↗</a>`);
+                 + `rel="noopener">release ↗</a>`);
     }}
     if (supportingUrl) {{
       links.push(`<a href="${{escapeHtml(supportingUrl)}}" target="_blank" `
-                 + `rel="noopener">supporting source ↗</a>`);
+                 + `rel="noopener">supporting ↗</a>`);
     }}
-    info.innerHTML = `
-      <h2>Selection</h2>
+    return `
+      <button class="close" type="button" aria-label="Close details">×</button>
       <h3>${{escapeHtml(name)}}</h3>
-      <div class="meta">${{escapeHtml(org)}} · ${{escapeHtml(dateStr)}}
-        · ${{escapeHtml(params)}} (${{escapeHtml(disclosure)}})
-        · ${{escapeHtml(arch)}} · ${{escapeHtml(openWeights)}}
+      <div class="meta">${{escapeHtml(org)}} · ${{escapeHtml(dateStr)}}<br>
+        ${{escapeHtml(params)}} (${{escapeHtml(disclosure)}})<br>
+        ${{escapeHtml(arch)}} · ${{escapeHtml(openWeights)}}
         · context ${{escapeHtml(ctx)}}</div>
-      <div><strong>Capabilities</strong></div>
       <div class="caps">${{capChips}}</div>
-      <div><strong>Sources</strong></div>
-      <div class="links">${{links.join(' · ') || '<span class="empty">no URLs on file</span>'}}</div>
+      <div class="links">${{links.join(' ') || '<span style="color:#6b7280">no URLs on file</span>'}}</div>
     `;
   }};
+  let hoverEnabled = true;
+  const setHoverEnabled = (enabled) => {{
+    if (hoverEnabled === enabled) return;
+    hoverEnabled = enabled;
+    Plotly.relayout(div, {{hovermode: enabled ? 'closest' : false}});
+  }};
+  const hidePopover = () => {{
+    popover.hidden = true;
+    popover.innerHTML = '';
+    setHoverEnabled(true);
+  }};
+  const showPopover = (cd, ax, ay) => {{
+    setHoverEnabled(false);
+    popover.innerHTML = renderPopover(cd);
+    popover.hidden = false;
+    popover.style.visibility = 'hidden';
+    popover.style.left = '0px';
+    popover.style.top = '0px';
+    const pw = popover.offsetWidth;
+    const ph = popover.offsetHeight;
+    const ww = wrap.clientWidth;
+    const wh = wrap.clientHeight;
+    const m = 8;
+    let left = ax + 14;
+    let top = ay + 14;
+    if (left + pw > ww - m) left = Math.max(m, ax - pw - 14);
+    if (top + ph > wh - m) top = Math.max(m, ay - ph - 14);
+    if (left < m) left = m;
+    if (top < m) top = m;
+    popover.style.left = `${{left}}px`;
+    popover.style.top = `${{top}}px`;
+    popover.style.visibility = 'visible';
+    const closeBtn = popover.querySelector('.close');
+    if (closeBtn) closeBtn.addEventListener('click', hidePopover);
+  }};
+  let suppressOutsideClose = false;
   div.on('plotly_click', (data) => {{
-    if (data && data.points && data.points.length) {{
-      renderPoint(data.points[0].customdata);
-    }}
+    if (!data || !data.points || !data.points.length) return;
+    const pt = data.points[0];
+    if (!pt.customdata) return;
+    const ev = data.event || {{}};
+    const rect = wrap.getBoundingClientRect();
+    const x = (ev.clientX || 0) - rect.left;
+    const y = (ev.clientY || 0) - rect.top;
+    showPopover(pt.customdata, x, y);
+    suppressOutsideClose = true;
+    setTimeout(() => {{ suppressOutsideClose = false; }}, 0);
+  }});
+  div.on('plotly_relayout', (eventData) => {{
+    // Our own setHoverEnabled() calls relayout with only `hovermode` —
+    // skip those so they don't close the popover we just opened.
+    const keys = Object.keys(eventData || {{}});
+    if (keys.length === 1 && keys[0] === 'hovermode') return;
+    if (!popover.hidden) hidePopover();
+  }});
+  document.addEventListener('click', (e) => {{
+    if (suppressOutsideClose) return;
+    if (popover.hidden) return;
+    if (popover.contains(e.target)) return;
+    hidePopover();
+  }});
+  document.addEventListener('keydown', (e) => {{
+    if (e.key === 'Escape' && !popover.hidden) hidePopover();
   }});
 
   const toggleBtn = document.getElementById('toggle-labels');
