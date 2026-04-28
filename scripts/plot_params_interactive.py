@@ -316,15 +316,15 @@ def build_figure(frontier: list[dict], open_rows: list[dict]) -> go.Figure:
                    gridcolor="rgba(0,0,0,0.08)"),
         yaxis=dict(title="Total parameters (log scale)", type="log",
                    showgrid=True, gridcolor="rgba(0,0,0,0.08)"),
-        legend=dict(orientation="h", x=0.5, y=-0.18, xanchor="center",
+        legend=dict(orientation="h", x=0.5, y=-0.12, xanchor="center",
                     yanchor="top",
-                    entrywidth=210, entrywidthmode="pixels",
+                    entrywidth=190, entrywidthmode="pixels",
                     bgcolor="rgba(255,255,255,0.85)"),
         hovermode="closest",
         hoverlabel=dict(bgcolor="white", font_size=12,
                         bordercolor="#999"),
         plot_bgcolor="white",
-        margin=dict(l=70, r=40, t=20, b=140),
+        margin=dict(l=56, r=20, t=14, b=96),
         height=720,
     )
     return fig
@@ -378,20 +378,19 @@ PAGE_TEMPLATE = """<!doctype html>
   * {{ box-sizing: border-box; }}
   body {{ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
           margin:0; color:#1f2328; background:#fafbfc; }}
-  header {{ padding:18px 24px; border-bottom:1px solid var(--border);
+  header {{ padding:14px 14px 10px; border-bottom:1px solid var(--border);
             background:#fff; }}
   header h1 {{ margin:0 0 4px; font-size:18px; }}
   header p  {{ margin:0; color:var(--muted); font-size:13px; }}
-  .takeaways {{ margin:12px 0 10px; padding:10px 14px;
+  .takeaways {{ margin:8px 0 6px; padding:8px 12px;
                 background:#eef2ff; border-left:4px solid #6366f1;
                 border-radius:4px; font-size:13.5px; color:#1e1b4b; }}
   .takeaways ul {{ margin:4px 0 0; padding-left:20px; }}
-  .takeaways li {{ line-height:1.55; margin:2px 0; }}
-  .layout {{ display:flex; flex-direction:column; gap:16px;
-             padding:16px 24px; }}
+  .takeaways li {{ line-height:1.5; margin:1px 0; }}
+  .layout {{ padding:6px 8px 2px; }}
   #chart-wrap {{ position:relative;
                  background:#fff; border:1px solid var(--border);
-                 border-radius:6px; padding:8px; }}
+                 border-radius:6px; padding:4px; }}
   header button.toggle {{ font:inherit; font-size:12px; cursor:pointer;
                           background:#fff; border:1px solid var(--border);
                           border-radius:6px; padding:2px 10px;
@@ -401,24 +400,39 @@ PAGE_TEMPLATE = """<!doctype html>
   header button.toggle[aria-pressed="true"] {{ background:#eef2ff;
                                                 border-color:#c7d2fe;
                                                 color:#3730a3; }}
-  .cards-row {{ display:grid; grid-template-columns: minmax(220px, 1fr) 2fr;
-                gap:16px; }}
-  @media (max-width: 900px) {{
-    .cards-row {{ grid-template-columns: 1fr; }}
-  }}
-  .card {{ background:#fff; border:1px solid var(--border); border-radius:6px;
-           padding:14px 16px; }}
-  .card h2 {{ margin:0 0 8px; font-size:14px;
-              text-transform:uppercase; letter-spacing:0.04em;
-              color:var(--muted); font-weight:600; }}
-  .card ul {{ list-style:none; padding:0; margin:0; font-size:12px; }}
-  .card li {{ display:flex; align-items:center; gap:8px;
-              margin:3px 0; line-height:1.4; }}
+  .legend-panel {{ position:absolute; top:12px; right:12px; z-index:50;
+                   background:#fff; border:1px solid var(--border);
+                   border-radius:8px;
+                   box-shadow:0 6px 18px rgba(0,0,0,0.12);
+                   padding:10px 14px 8px; font-size:12px;
+                   max-width:340px;
+                   max-height:calc(100% - 24px); overflow:auto; }}
+  .legend-panel[hidden] {{ display:none; }}
+  .legend-panel section + section {{ margin-top:10px; }}
+  .legend-panel h2 {{ margin:0 0 6px; font-size:11px;
+                      text-transform:uppercase; letter-spacing:0.04em;
+                      color:var(--muted); font-weight:600;
+                      padding-right:20px; }}
+  .legend-panel ul {{ list-style:none; padding:0; margin:0; }}
+  .legend-panel li {{ display:flex; align-items:center; gap:8px;
+                      margin:2px 0; line-height:1.4; }}
+  .legend-panel .close {{ position:absolute; top:4px; right:6px;
+                          background:transparent; border:0; cursor:pointer;
+                          color:var(--muted); font-size:18px; padding:2px 6px;
+                          line-height:1; border-radius:4px; }}
+  .legend-panel .close:hover {{ background:#f3f4f6; color:#111; }}
   .swatch {{ display:inline-block; width:14px; height:14px;
              border-radius:50%; border:1px solid #00000020; }}
   .legend-grid {{ display:grid;
-                  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                  gap:6px 14px; }}
+                  grid-template-columns: repeat(2, minmax(130px, 1fr));
+                  gap:2px 14px; }}
+  @media (max-width: 700px) {{
+    .legend-panel {{ position:static; top:auto; right:auto;
+                     max-width:none; max-height:none;
+                     box-shadow:none; margin:6px 0 0;
+                     border-radius:6px; }}
+    .legend-grid {{ grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }}
+  }}
   .popover {{ position:absolute; z-index:100; max-width:340px;
               background:#fff; border:1px solid #d0d7de;
               border-radius:8px;
@@ -441,9 +455,9 @@ PAGE_TEMPLATE = """<!doctype html>
                      color:var(--muted); font-size:18px; padding:2px 6px;
                      line-height:1; border-radius:4px; }}
   .popover .close:hover {{ background:#f3f4f6; color:#111; }}
-  .footer {{ display:flex; flex-wrap:wrap; gap:8px 18px;
+  .footer {{ display:flex; flex-wrap:wrap; gap:6px 18px;
              justify-content:space-between;
-             padding:0 24px 18px; color:var(--muted); font-size:12px; }}
+             padding:4px 14px 12px; color:var(--muted); font-size:12px; }}
   .footer a {{ color:var(--accent); text-decoration:none; }}
   .footer a:hover {{ text-decoration:underline; }}
 </style>
@@ -459,26 +473,32 @@ PAGE_TEMPLATE = """<!doctype html>
              aria-pressed="false"
              title="Show or hide model name labels on the chart">
        Show model labels
+     </button>
+     <button id="toggle-legend" class="toggle" type="button"
+             aria-pressed="false"
+             title="Show or hide the color/shape key">
+       Show key
      </button></p>
 </header>
 <div class="layout">
   <div id="chart-wrap">
     {chart_div}
     <div id="point-popover" class="popover" hidden></div>
-  </div>
-  <div class="cards-row">
-    <div class="card">
-      <h2>Disclosure (marker shape)</h2>
-      <ul>
-        {disclosure_legend}
-      </ul>
-    </div>
-    <div class="card">
-      <h2>Organization (color)</h2>
-      <ul class="legend-grid">
-        {org_legend}
-      </ul>
-    </div>
+    <aside id="legend-panel" class="legend-panel" hidden>
+      <button class="close" type="button" aria-label="Close key">×</button>
+      <section>
+        <h2>Disclosure (marker shape)</h2>
+        <ul>
+          {disclosure_legend}
+        </ul>
+      </section>
+      <section>
+        <h2>Organization (color)</h2>
+        <ul class="legend-grid">
+          {org_legend}
+        </ul>
+      </section>
+    </aside>
   </div>
 </div>
 <footer class="footer">
@@ -584,8 +604,29 @@ PAGE_TEMPLATE = """<!doctype html>
     if (popover.contains(e.target)) return;
     hidePopover();
   }});
+  const legendBtn = document.getElementById('toggle-legend');
+  const legendPanel = document.getElementById('legend-panel');
+  const setLegendVisible = (visible) => {{
+    if (!legendPanel) return;
+    legendPanel.hidden = !visible;
+    if (legendBtn) {{
+      legendBtn.setAttribute('aria-pressed', String(visible));
+      legendBtn.textContent = visible ? 'Hide key' : 'Show key';
+    }}
+  }};
+  if (legendBtn && legendPanel) {{
+    legendBtn.addEventListener('click', () => {{
+      setLegendVisible(legendPanel.hidden);
+    }});
+    const legendCloseBtn = legendPanel.querySelector('.close');
+    if (legendCloseBtn) {{
+      legendCloseBtn.addEventListener('click', () => setLegendVisible(false));
+    }}
+  }}
   document.addEventListener('keydown', (e) => {{
-    if (e.key === 'Escape' && !popover.hidden) hidePopover();
+    if (e.key !== 'Escape') return;
+    if (!popover.hidden) hidePopover();
+    if (legendPanel && !legendPanel.hidden) setLegendVisible(false);
   }});
 
   const toggleBtn = document.getElementById('toggle-labels');
