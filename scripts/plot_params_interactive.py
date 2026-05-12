@@ -735,22 +735,28 @@ PAGE_TEMPLATE = """<!doctype html>
     div.addEventListener('touchcancel', onPinchEnd, {{ capture: true }});
   }}
 
-  // On narrow viewports, drop the rotated y-axis title and tighten the
-  // left margin — the page heading and takeaways block already say what
-  // the y-axis is. Pass `margin` as a full object: Plotly's relayout
-  // dot-notation works for some nested fields but margin.l silently
-  // no-ops, leaving the original width in place.
+  // On narrow viewports, drop the rotated y-axis title and move the
+  // tick labels inside the plot area so the left margin can collapse
+  // to almost nothing. The page heading and takeaways block already
+  // say what the y-axis is. Pass `margin` as a full object: Plotly's
+  // relayout dot-notation works for some nested fields but margin.l
+  // silently no-ops, leaving the original width in place.
   const narrowMQ = window.matchMedia('(max-width: 600px)');
   const applyResponsiveLayout = () => {{
     if (narrowMQ.matches) {{
       Plotly.relayout(div, {{
         'yaxis.title.text': '',
         'yaxis.title.standoff': 0,
-        margin: {{ l: 32, r: 12, t: 8, b: 96 }},
+        'yaxis.ticklabelposition': 'inside top',
+        'yaxis.ticks': '',
+        margin: {{ l: 8, r: 12, t: 8, b: 96 }},
       }});
     }} else {{
       Plotly.relayout(div, {{
         'yaxis.title.text': 'Total parameters (log scale)',
+        'yaxis.title.standoff': null,
+        'yaxis.ticklabelposition': 'outside',
+        'yaxis.ticks': '',
         margin: {{ l: 56, r: 20, t: 14, b: 96 }},
       }});
     }}
