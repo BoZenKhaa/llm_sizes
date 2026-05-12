@@ -660,6 +660,80 @@ PAGE_TEMPLATE = """<!doctype html>
       toggleBtn.textContent = next ? 'Hide model labels' : 'Show model labels';
     }});
   }}
+
+  // Pinch-to-zoom on touch. Plotly's cartesian plots don't natively bind
+  // 2-finger pinch, so we intercept touch events in the capture phase,
+  // compute new axis ranges anchored at the pinch midpoint, and apply
+  // via Plotly.relayout. Single-finger touches fall through to Plotly's
+  // pan handler unchanged.
+  if (isCoarsePointer) {{
+    let pinchState = null;
+    const rangeToNum = (v) => typeof v === 'number' ? v : Date.parse(v);
+    const numToRange = (axType, v) => axType === 'date'
+      ? new Date(v).toISOString()
+      : v;
+    const onPinchStart = (e) => {{
+      if (e.touches.length !== 2) {{ pinchState = null; return; }}
+      const dragLayer = div.querySelector('.nsewdrag');
+      if (!dragLayer) return;
+      const rect = dragLayer.getBoundingClientRect();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const midX = (t1.clientX + t2.clientX) / 2;
+      const midY = (t1.clientY + t2.clientY) / 2;
+      if (midX < rect.left || midX > rect.right
+          || midY < rect.top || midY > rect.bottom) return;
+      const fl = div._fullLayout;
+      if (!fl || !fl.xaxis || !fl.yaxis) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pinchState = {{
+        W: rect.width, H: rect.height,
+        midPx: midX - rect.left, midPy: midY - rect.top,
+        dist: Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY),
+        xType: fl.xaxis.type,
+        yType: fl.yaxis.type,
+        xRange: [rangeToNum(fl.xaxis.range[0]),
+                 rangeToNum(fl.xaxis.range[1])],
+        yRange: [rangeToNum(fl.yaxis.range[0]),
+                 rangeToNum(fl.yaxis.range[1])],
+      }};
+      if (!popover.hidden) hidePopover();
+    }};
+    const onPinchMove = (e) => {{
+      if (!pinchState || e.touches.length !== 2) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX,
+                              t2.clientY - t1.clientY);
+      if (dist < 10) return;
+      const s = dist / pinchState.dist;
+      const {{ W, H, midPx, midPy, xRange, yRange, xType, yType }} = pinchState;
+      const fx = midPx / W;
+      const fy = (H - midPy) / H;  // pixel-y is top-down; axis is bottom-up
+      const wX = xRange[1] - xRange[0];
+      const wY = yRange[1] - yRange[0];
+      const aX = xRange[0] + fx * wX;
+      const aY = yRange[0] + fy * wY;
+      const nwX = wX / s;
+      const nwY = wY / s;
+      Plotly.relayout(div, {{
+        'xaxis.range': [numToRange(xType, aX - fx * nwX),
+                        numToRange(xType, aX + (1 - fx) * nwX)],
+        'yaxis.range': [numToRange(yType, aY - fy * nwY),
+                        numToRange(yType, aY + (1 - fy) * nwY)],
+      }});
+    }};
+    const onPinchEnd = (e) => {{
+      if (e.touches.length < 2) pinchState = null;
+    }};
+    div.addEventListener('touchstart', onPinchStart,
+                         {{ passive: false, capture: true }});
+    div.addEventListener('touchmove', onPinchMove,
+                         {{ passive: false, capture: true }});
+    div.addEventListener('touchend', onPinchEnd, {{ capture: true }});
+    div.addEventListener('touchcancel', onPinchEnd, {{ capture: true }});
+  }}
 }})();
 </script>
 </body>
