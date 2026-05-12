@@ -64,6 +64,20 @@
                      box-shadow:none; margin:0 0 6px;
                      border-radius:6px; order:-1; }
     .legend-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    /* In fullscreen on narrow screens the flex-column layout collapses
+       the chart and pushes the static legend behind Plotly's stacking
+       context. Restore the absolute overlay so the key floats above
+       the chart. */
+    body.chart-fullscreen #chart-wrap { display:block; }
+    body.chart-fullscreen .legend-panel {
+      position:absolute; order:0;
+      top:44px; right:8px; left:8px;
+      max-width:none;
+      max-height:calc(100vh - 60px); overflow:auto;
+      margin:0; box-shadow:0 6px 18px rgba(0,0,0,0.18);
+      background:#fff; border-radius:8px;
+      z-index:80;
+    }
   }
   /* On touch devices, hide Plotly's hover tooltip via CSS rather than
      turning hovermode off — disabling hovermode also disables point-hit
