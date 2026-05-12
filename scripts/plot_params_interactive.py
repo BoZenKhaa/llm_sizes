@@ -734,6 +734,26 @@ PAGE_TEMPLATE = """<!doctype html>
     div.addEventListener('touchend', onPinchEnd, {{ capture: true }});
     div.addEventListener('touchcancel', onPinchEnd, {{ capture: true }});
   }}
+
+  // On narrow viewports, drop the rotated y-axis title and tighten the
+  // left margin — the page heading and takeaways block already say what
+  // the y-axis is. Frees ~25px of horizontal space for the chart itself.
+  const narrowMQ = window.matchMedia('(max-width: 600px)');
+  const applyResponsiveLayout = () => {{
+    if (narrowMQ.matches) {{
+      Plotly.relayout(div, {{
+        'yaxis.title.text': '',
+        'margin.l': 32,
+      }});
+    }} else {{
+      Plotly.relayout(div, {{
+        'yaxis.title.text': 'Total parameters (log scale)',
+        'margin.l': 56,
+      }});
+    }}
+  }};
+  applyResponsiveLayout();
+  narrowMQ.addEventListener('change', applyResponsiveLayout);
 }})();
 </script>
 </body>
