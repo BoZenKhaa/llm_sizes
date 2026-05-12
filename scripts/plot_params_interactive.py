@@ -440,6 +440,16 @@ PAGE_TEMPLATE = """<!doctype html>
   @media (hover: none) {{
     #chart-wrap .hoverlayer {{ display: none !important; }}
   }}
+  /* On narrow viewports we move y-tick labels inside the plot (via
+     ticklabelposition: 'inside top'). Plotly anchors them at their
+     right edge by default, which reads as right-aligned hugging the
+     axis line. Flip text-anchor to start so labels run left-to-right
+     into the plot area instead. */
+  @media (max-width: 600px) {{
+    #chart-wrap g.ytick text {{
+      text-anchor: start !important;
+    }}
+  }}
   .popover {{ position:absolute; z-index:100; max-width:340px;
               background:#fff; border:1px solid #d0d7de;
               border-radius:8px;
