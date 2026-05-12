@@ -434,6 +434,12 @@ PAGE_TEMPLATE = """<!doctype html>
                      border-radius:6px; order:-1; }}
     .legend-grid {{ grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }}
   }}
+  /* On touch devices, hide Plotly's hover tooltip via CSS rather than
+     turning hovermode off — disabling hovermode also disables point-hit
+     detection, which breaks plotly_click on taps. */
+  @media (hover: none) {{
+    #chart-wrap .hoverlayer {{ display: none !important; }}
+  }}
   .popover {{ position:absolute; z-index:100; max-width:340px;
               background:#fff; border:1px solid #d0d7de;
               border-radius:8px;
@@ -546,12 +552,16 @@ PAGE_TEMPLATE = """<!doctype html>
   }};
   const isCoarsePointer = !!(window.matchMedia
       && window.matchMedia('(hover: none)').matches);
-  let hoverEnabled = !isCoarsePointer;
+  // Keep hovermode 'closest' on touch so taps still resolve to a point and
+  // plotly_click can populate the popover; the tooltip itself is hidden via
+  // the `@media (hover: none)` CSS rule.
+  let hoverEnabled = true;
   if (isCoarsePointer) {{
-    Plotly.relayout(div, {{hovermode: false}});
+    // Single-finger drag pans; two-finger pinch zooms (scrollZoom).
+    Plotly.relayout(div, {{dragmode: 'pan'}});
   }}
   const setHoverEnabled = (enabled) => {{
-    if (isCoarsePointer) enabled = false;
+    if (isCoarsePointer) return;
     if (hoverEnabled === enabled) return;
     hoverEnabled = enabled;
     Plotly.relayout(div, {{hovermode: enabled ? 'closest' : false}});
