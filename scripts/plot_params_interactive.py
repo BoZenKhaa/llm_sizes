@@ -492,6 +492,19 @@ PAGE_TEMPLATE = """<!doctype html>
   .fullscreen-toggle .close-icon {{ display:none; }}
   body.chart-fullscreen .fullscreen-toggle .expand-icon {{ display:none; }}
   body.chart-fullscreen .fullscreen-toggle .close-icon {{ display:block; }}
+  .fullscreen-toolbar {{ display:none; position:absolute; top:6px;
+                          left:42px; z-index:60; gap:4px;
+                          flex-direction:row; }}
+  body.chart-fullscreen .fullscreen-toolbar {{ display:inline-flex; }}
+  .fullscreen-toolbar button {{ background:rgba(255,255,255,0.9);
+                                 border:1px solid var(--border);
+                                 border-radius:6px; padding:0 10px;
+                                 font:inherit; font-size:12px;
+                                 cursor:pointer; color:#1f2328;
+                                 height:30px; }}
+  .fullscreen-toolbar button:hover {{ background:#fff; }}
+  .fullscreen-toolbar button[aria-pressed="true"] {{
+    background:#eef2ff; border-color:#c7d2fe; color:#3730a3; }}
   body.chart-fullscreen {{ overflow:hidden;
                             overscroll-behavior:none; }}
   body.chart-fullscreen header,
@@ -511,12 +524,12 @@ PAGE_TEMPLATE = """<!doctype html>
      Drag to zoom; double-click to reset. Toggle traces using the
      legend below the chart.
      <button id="toggle-labels" class="toggle" type="button"
-             aria-pressed="false"
+             aria-pressed="false" data-toggle="labels" data-full-text="true"
              title="Show or hide model name labels on the chart">
        Show model labels
      </button>
      <button id="toggle-legend" class="toggle" type="button"
-             aria-pressed="false"
+             aria-pressed="false" data-toggle="legend" data-full-text="true"
              title="Show or hide the color/shape key">
        Show key
      </button></p>
@@ -539,6 +552,12 @@ PAGE_TEMPLATE = """<!doctype html>
               stroke-linecap="round"/>
       </svg>
     </button>
+    <div class="fullscreen-toolbar">
+      <button type="button" aria-pressed="false" data-toggle="labels"
+              title="Show or hide model name labels">Labels</button>
+      <button type="button" aria-pressed="false" data-toggle="legend"
+              title="Show or hide the color/shape key">Key</button>
+    </div>
     <div id="point-popover" class="popover" hidden></div>
     <aside id="legend-panel" class="legend-panel" hidden>
       <button class="close" type="button" aria-label="Close key">×</button>
@@ -675,20 +694,24 @@ PAGE_TEMPLATE = """<!doctype html>
     if (popover.contains(e.target)) return;
     hidePopover();
   }});
-  const legendBtn = document.getElementById('toggle-legend');
   const legendPanel = document.getElementById('legend-panel');
   const setLegendVisible = (visible) => {{
     if (!legendPanel) return;
     legendPanel.hidden = !visible;
-    if (legendBtn) {{
-      legendBtn.setAttribute('aria-pressed', String(visible));
-      legendBtn.textContent = visible ? 'Hide key' : 'Show key';
-    }}
+    document.querySelectorAll('[data-toggle="legend"]').forEach((btn) => {{
+      btn.setAttribute('aria-pressed', String(visible));
+      if (btn.dataset.fullText === 'true') {{
+        btn.textContent = visible ? 'Hide key' : 'Show key';
+      }}
+    }});
   }};
-  if (legendBtn && legendPanel) {{
-    legendBtn.addEventListener('click', () => {{
+  document.querySelectorAll('[data-toggle="legend"]').forEach((btn) => {{
+    btn.addEventListener('click', () => {{
+      if (!legendPanel) return;
       setLegendVisible(legendPanel.hidden);
     }});
+  }});
+  if (legendPanel) {{
     const legendCloseBtn = legendPanel.querySelector('.close');
     if (legendCloseBtn) {{
       legendCloseBtn.addEventListener('click', () => setLegendVisible(false));
@@ -703,20 +726,24 @@ PAGE_TEMPLATE = """<!doctype html>
     }}
   }});
 
-  const toggleBtn = document.getElementById('toggle-labels');
-  if (toggleBtn) {{
-    toggleBtn.addEventListener('click', () => {{
-      const visible = toggleBtn.getAttribute('aria-pressed') === 'true';
-      const next = !visible;
-      // traces 0 and 1 are the two scatter traces (open + frontier);
-      // traces 2 and 3 are the trend lines and stay 'lines'
-      Plotly.restyle(div,
-        {{ mode: next ? 'markers+text' : 'markers' }},
-        [0, 1]);
-      toggleBtn.setAttribute('aria-pressed', String(next));
-      toggleBtn.textContent = next ? 'Hide model labels' : 'Show model labels';
+  let labelsVisible = false;
+  const setLabelsVisible = (visible) => {{
+    labelsVisible = visible;
+    // traces 0 and 1 are the two scatter traces (open + frontier);
+    // traces 2 and 3 are the trend lines and stay 'lines'
+    Plotly.restyle(div,
+      {{ mode: visible ? 'markers+text' : 'markers' }},
+      [0, 1]);
+    document.querySelectorAll('[data-toggle="labels"]').forEach((btn) => {{
+      btn.setAttribute('aria-pressed', String(visible));
+      if (btn.dataset.fullText === 'true') {{
+        btn.textContent = visible ? 'Hide model labels' : 'Show model labels';
+      }}
     }});
-  }}
+  }};
+  document.querySelectorAll('[data-toggle="labels"]').forEach((btn) => {{
+    btn.addEventListener('click', () => setLabelsVisible(!labelsVisible));
+  }});
 
   // Pinch-to-zoom on touch. Plotly's cartesian plots don't natively bind
   // 2-finger pinch, so we intercept touch events in the capture phase,
@@ -794,26 +821,39 @@ PAGE_TEMPLATE = """<!doctype html>
 
   // On narrow viewports, drop the rotated y-axis title and move the
   // tick labels inside the plot area so the left margin can collapse
-  // to almost nothing. The page heading and takeaways block already
+  // to almost nothing. Also compact the bottom legend (shorter trace
+  // names + smaller font + reduced entrywidth) so it fits one row
+  // instead of wrapping. The page heading and takeaways block already
   // say what the y-axis is. Pass `margin` as a full object: Plotly's
   // relayout dot-notation works for some nested fields but margin.l
   // silently no-ops, leaving the original width in place.
+  const NAMES_WIDE = ['Open-weight frontier', 'Frontier (closed-weight)',
+                       'Open-weight trend', 'Frontier trend'];
+  const NAMES_NARROW = ['Open', 'Frontier', 'Open trend', 'Frontier trend'];
   const narrowMQ = window.matchMedia('(max-width: 600px)');
   const applyResponsiveLayout = () => {{
     if (narrowMQ.matches) {{
+      Plotly.restyle(div, {{ name: NAMES_NARROW }}, [0, 1, 2, 3]);
       Plotly.relayout(div, {{
         'yaxis.title.text': '',
         'yaxis.title.standoff': 0,
         'yaxis.ticklabelposition': 'inside top',
         'yaxis.ticks': '',
-        margin: {{ l: 8, r: 12, t: 8, b: 96 }},
+        'legend.entrywidth': 92,
+        'legend.font.size': 10,
+        'legend.y': -0.06,
+        margin: {{ l: 8, r: 12, t: 8, b: 56 }},
       }});
     }} else {{
+      Plotly.restyle(div, {{ name: NAMES_WIDE }}, [0, 1, 2, 3]);
       Plotly.relayout(div, {{
         'yaxis.title.text': 'Total parameters (log scale)',
         'yaxis.title.standoff': null,
         'yaxis.ticklabelposition': 'outside',
         'yaxis.ticks': '',
+        'legend.entrywidth': 190,
+        'legend.font.size': 12,
+        'legend.y': -0.12,
         margin: {{ l: 56, r: 20, t: 14, b: 96 }},
       }});
     }}
@@ -865,7 +905,8 @@ PAGE_TEMPLATE = """<!doctype html>
   // fullscreen.
   wrap.addEventListener('click', (e) => {{
     if (e.target.closest(
-      '#fullscreen-toggle, #point-popover, #legend-panel, .modebar')) return;
+      '#fullscreen-toggle, .fullscreen-toolbar, #point-popover, '
+      + '#legend-panel, .modebar')) return;
     if (Date.now() - lastPlotlyClickAt < 250) return;
     if (!popover.hidden) return;
     if (document.body.classList.contains('chart-fullscreen')) return;
