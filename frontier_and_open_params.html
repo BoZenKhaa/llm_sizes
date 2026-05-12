@@ -67,9 +67,13 @@
   }
   /* On touch devices, hide Plotly's hover tooltip via CSS rather than
      turning hovermode off — disabling hovermode also disables point-hit
-     detection, which breaks plotly_click on taps. */
+     detection, which breaks plotly_click on taps. The modebar is also
+     hidden since pinch/pan/double-tap/tap-to-fullscreen cover all of
+     its functions and its buttons are tiny tap targets. */
   @media (hover: none) {
     #chart-wrap .hoverlayer { display: none !important; }
+    #chart-wrap .modebar-container,
+    #chart-wrap .modebar { display: none !important; }
   }
   /* On narrow viewports we move y-tick labels inside the plot (via
      ticklabelposition: 'inside top'). Plotly anchors them at their
