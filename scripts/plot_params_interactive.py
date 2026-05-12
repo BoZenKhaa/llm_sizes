@@ -477,6 +477,26 @@ PAGE_TEMPLATE = """<!doctype html>
              padding:4px 14px 12px; color:var(--muted); font-size:12px; }}
   .footer a {{ color:var(--accent); text-decoration:none; }}
   .footer a:hover {{ text-decoration:underline; }}
+  .fullscreen-toggle {{ position:absolute; top:6px; left:6px; z-index:60;
+                        width:30px; height:30px; padding:0;
+                        background:rgba(255,255,255,0.9);
+                        border:1px solid var(--border); border-radius:6px;
+                        display:inline-flex; align-items:center;
+                        justify-content:center; cursor:pointer;
+                        color:#1f2328; }}
+  .fullscreen-toggle:hover {{ background:#fff; }}
+  .fullscreen-toggle .close-icon {{ display:none; }}
+  body.chart-fullscreen .fullscreen-toggle .expand-icon {{ display:none; }}
+  body.chart-fullscreen .fullscreen-toggle .close-icon {{ display:block; }}
+  body.chart-fullscreen {{ overflow:hidden;
+                            overscroll-behavior:none; }}
+  body.chart-fullscreen header,
+  body.chart-fullscreen .footer {{ display:none; }}
+  body.chart-fullscreen .layout {{ padding:0; }}
+  body.chart-fullscreen #chart-wrap {{ position:fixed; inset:0;
+                                        width:100vw; height:100vh;
+                                        border:none; border-radius:0;
+                                        margin:0; padding:0; z-index:1000; }}
 </style>
 </head>
 <body>
@@ -500,6 +520,21 @@ PAGE_TEMPLATE = """<!doctype html>
 <div class="layout">
   <div id="chart-wrap">
     {chart_div}
+    <button id="fullscreen-toggle" class="fullscreen-toggle" type="button"
+            aria-pressed="false" title="Expand chart" aria-label="Expand chart">
+      <svg class="expand-icon" width="16" height="16" viewBox="0 0 16 16"
+           aria-hidden="true">
+        <path d="M2 6V2H6 M10 2H14V6 M14 10V14H10 M6 14H2V10"
+              fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <svg class="close-icon" width="16" height="16" viewBox="0 0 16 16"
+           aria-hidden="true">
+        <path d="M3 3L13 13 M13 3L3 13"
+              fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round"/>
+      </svg>
+    </button>
     <div id="point-popover" class="popover" hidden></div>
     <aside id="legend-panel" class="legend-panel" hidden>
       <button class="close" type="button" aria-label="Close key">×</button>
@@ -606,7 +641,12 @@ PAGE_TEMPLATE = """<!doctype html>
     if (closeBtn) closeBtn.addEventListener('click', hidePopover);
   }};
   let suppressOutsideClose = false;
+  let lastPlotlyClickAt = 0;
   div.on('plotly_click', (data) => {{
+    // plotly_click only fires for marker hits, never the background.
+    // Record the timestamp so the wrap-level click handler can tell
+    // a marker tap from a plot-background tap.
+    lastPlotlyClickAt = Date.now();
     if (!data || !data.points || !data.points.length) return;
     const pt = data.points[0];
     if (!pt.customdata) return;
@@ -654,6 +694,9 @@ PAGE_TEMPLATE = """<!doctype html>
     if (e.key !== 'Escape') return;
     if (!popover.hidden) hidePopover();
     if (legendPanel && !legendPanel.hidden) setLegendVisible(false);
+    if (document.body.classList.contains('chart-fullscreen')) {{
+      exitFullscreen();
+    }}
   }});
 
   const toggleBtn = document.getElementById('toggle-labels');
@@ -773,6 +816,63 @@ PAGE_TEMPLATE = """<!doctype html>
   }};
   applyResponsiveLayout();
   narrowMQ.addEventListener('change', applyResponsiveLayout);
+
+  // Fullscreen mode: tap on plot background (or click the toggle button)
+  // expands the chart to fill the viewport, locks body scroll, and hides
+  // header/footer. ESC or the toggle button exits. Marker taps still open
+  // the popover instead of toggling fullscreen.
+  const fsBtn = document.getElementById('fullscreen-toggle');
+  const enterFullscreen = () => {{
+    if (document.body.classList.contains('chart-fullscreen')) return;
+    document.body.classList.add('chart-fullscreen');
+    if (fsBtn) {{
+      fsBtn.setAttribute('aria-pressed', 'true');
+      fsBtn.title = 'Exit fullscreen';
+      fsBtn.setAttribute('aria-label', 'Exit fullscreen');
+    }}
+    // Resize Plotly to fill the new container; the figure was created
+    // with a fixed height=720, so we relayout explicitly.
+    Plotly.relayout(div, {{ height: window.innerHeight,
+                             width: window.innerWidth, autosize: true }});
+  }};
+  const exitFullscreen = () => {{
+    if (!document.body.classList.contains('chart-fullscreen')) return;
+    document.body.classList.remove('chart-fullscreen');
+    if (fsBtn) {{
+      fsBtn.setAttribute('aria-pressed', 'false');
+      fsBtn.title = 'Expand chart';
+      fsBtn.setAttribute('aria-label', 'Expand chart');
+    }}
+    Plotly.relayout(div, {{ height: 720, width: null, autosize: true }});
+  }};
+  if (fsBtn) {{
+    fsBtn.addEventListener('click', (e) => {{
+      e.stopPropagation();
+      if (document.body.classList.contains('chart-fullscreen')) {{
+        exitFullscreen();
+      }} else {{
+        enterFullscreen();
+      }}
+    }});
+  }}
+  // Background-of-plot click → enter fullscreen. Skip if click target is
+  // an interactive control, if Plotly just fired plotly_click (marker
+  // tap), if the popover is currently open, or if we're already
+  // fullscreen.
+  wrap.addEventListener('click', (e) => {{
+    if (e.target.closest(
+      '#fullscreen-toggle, #point-popover, #legend-panel, .modebar')) return;
+    if (Date.now() - lastPlotlyClickAt < 250) return;
+    if (!popover.hidden) return;
+    if (document.body.classList.contains('chart-fullscreen')) return;
+    enterFullscreen();
+  }});
+  // Re-fit on viewport resize while fullscreen (e.g. mobile rotate).
+  window.addEventListener('resize', () => {{
+    if (!document.body.classList.contains('chart-fullscreen')) return;
+    Plotly.relayout(div, {{ height: window.innerHeight,
+                             width: window.innerWidth, autosize: true }});
+  }});
 }})();
 </script>
 </body>
